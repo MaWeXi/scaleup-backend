@@ -22,11 +22,10 @@
             <artifactId>spring-boot-starter-data-cassandra</artifactId>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.datastax.oss/java-driver-core -->
         <dependency>
-            <groupId>com.datastax.oss</groupId>
-            <artifactId>java-driver-core</artifactId>
-            <version>4.13.0</version>
+            <groupId>com.datastax.astra</groupId>
+            <artifactId>astra-spring-boot-starter</artifactId>
+            <version>0.2.2</version>
         </dependency>
 
         <dependency>

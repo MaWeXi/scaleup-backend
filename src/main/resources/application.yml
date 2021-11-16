@@ -1,0 +1,12 @@
+spring:
+  data:
+    cassandra:
+      schema-action: CREATE_IF_NOT_EXISTS
+
+astra:
+  application-token: AstraCS:ovcUJhiDrbNUojnvhOeCEeWh:30ee38b507d170066756b29d311186540b5b8eadac6742d76ce4bc7e1b52aa80
+  database-id: f756b223-9b56-4c21-b696-4fb43dd488a5
+  database-region: europe-west1
+  keyspace: test
+  metrics:
+    enabled: true

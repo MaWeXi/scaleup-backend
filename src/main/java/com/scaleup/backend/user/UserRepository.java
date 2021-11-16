@@ -12,6 +12,7 @@ public interface UserRepository extends CassandraRepository<User, UUID> {
 
     @AllowFiltering
     Optional<User> findById(UUID id);
+
     @AllowFiltering
     Optional<User> findByUsername(String username);
 }
