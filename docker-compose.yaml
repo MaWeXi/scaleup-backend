@@ -1,0 +1,13 @@
+version: '3'
+
+services:
+  cassandra:
+    container_name: cassandra
+    image: cassandra:latest
+    ports:
+      - "9042:9042"
+    environment:
+      - CASSANDRA_START_RPC=true
+      - CASSANDRA_CLUSTER_NAME=scaleup
+      - CASSANDRA_DC=dc1
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
