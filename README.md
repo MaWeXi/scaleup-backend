@@ -33,7 +33,7 @@ API Requests and responses for the user controller
   <td> http://localhost:8080/api/v1/user/all </td>
   <td>
 
-  `/`
+  `-`
 
   </td>
   </tr>
@@ -42,7 +42,7 @@ API Requests and responses for the user controller
   <td> http://localhost:8080/api/v1/user/all/{id} </td>
   <td>
 
-  `/`
+  `-`
 
   </td>
   </tr>
