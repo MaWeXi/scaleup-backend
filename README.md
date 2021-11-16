@@ -102,3 +102,82 @@ API Requests and responses for the user controller
 ___
 
 ## Leagues
+
+API Requests and responses for the leagues controller
+**Not implemented yet!**
+
+### API Requests
+
+<table>
+  <tr>
+   <td> HTTP </td> <td> URL </td> <td> Body </td>
+  </tr>
+  </tr>
+  <td> POST </td>
+  <td> http://localhost:8080/api/v1/ </td>
+  <td>
+
+  `-`
+
+  </td>
+  </tr>
+  <tr>
+  <td> GET </td>
+  <td> http://localhost:8080/api/v1/ </td>
+  <td>
+
+  `-`
+
+  </td>
+  </tr>
+  <tr>
+  <td> GET </td>
+  <td> http://localhost:8080/api/v1 </td>
+  <td>
+
+  `-`
+
+  </td>
+  </tr>
+  </tr>
+  <td> PUT </td>
+  <td> http://localhost:8080/api/v1/ </td>
+  <td>
+
+  `-`
+
+  </td>
+  </tr>
+</table>
+
+### API Response
+
+<table>
+  <tr>
+  <td> Status </td> <td> Response </td>
+  </tr>
+  <tr>
+  <td> 200 </td>
+  <td>
+
+  **Markdown** _here_. (Blank lines needed before and after!)
+
+  </td>
+  </tr>
+  <tr>
+  <td> 204 </td>
+  <td>
+
+  `No content`
+
+  </td>
+  </tr>
+  </tr>
+  <td> 400 </td>
+  <td>
+
+  **Markdown** _here_. (Blank lines needed before and after!)
+
+  </td>
+  </tr>
+</table>
