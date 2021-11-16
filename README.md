@@ -103,7 +103,7 @@ ___
 
 ## Leagues
 
-API Requests and responses for the leagues controller
+API Requests and responses for the leagues controller\
 **Not implemented yet!**
 
 ### API Requests
