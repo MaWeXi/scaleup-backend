@@ -33,7 +33,7 @@ API Requests and responses for the user controller
   <td> http://localhost:8080/api/v1/user/all </td>
   <td>
 
-  `No content`
+  `/`
 
   </td>
   </tr>
@@ -42,7 +42,7 @@ API Requests and responses for the user controller
   <td> http://localhost:8080/api/v1/user/all/{id} </td>
   <td>
 
-  `No content`
+  `/`
 
   </td>
   </tr>
@@ -85,9 +85,7 @@ API Requests and responses for the user controller
   <td> 204 </td>
   <td>
 
-  ```json
-  No content
-  ```
+  `No content`
 
   </td>
   </tr>
