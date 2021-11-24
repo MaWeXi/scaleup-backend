@@ -1,6 +1,6 @@
 # ScaleUp Backend Guide
 
-Before starting the server you have to change the details in `application.yml` according to your astra configuration.
+Little guide for the ScaleUp Backend
 
 ___
 
