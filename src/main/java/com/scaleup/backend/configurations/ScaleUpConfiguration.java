@@ -1,5 +1,12 @@
 package com.scaleup.backend.configurations;
 
+/**
+ * Only uncomment this class if you want to use a local Cassandra DB.
+ * Content application.properties needs to be uncommented too.
+ */
+
+/*
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.cassandra.config.AbstractCassandraConfiguration;
@@ -45,3 +52,5 @@ public class ScaleUpConfiguration extends AbstractCassandraConfiguration {
         return SchemaAction.CREATE_IF_NOT_EXISTS;
     }
 }
+
+ */
