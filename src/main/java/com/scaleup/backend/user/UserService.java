@@ -1,5 +1,8 @@
 package com.scaleup.backend.user;
 
+import com.scaleup.backend.exceptionHandling.CustomErrorException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,51 +19,87 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
-
-    public User getUserById(UUID id) {
+    public ResponseEntity<List<User>> getAllUsers() {
         try {
-            Optional<User> userOptional = userRepository.findById(id);
-            return userOptional.orElse(null);
+            List<User> users = userRepository.findAll();
+            if (users.isEmpty()) {
+                throw new CustomErrorException(HttpStatus.NO_CONTENT, "No Users in DB");
+            }
+            return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e) {
 
-            // TODO: Implement logging of errors and give it back as response over HTTP
-            System.out.println(e);
-            return null;
+            // TODO: Implement logging of errors
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    public ResponseEntity<User> getUserById(String id) {
+        Optional<User> userOptional = userRepository.findById(id);
+
+        if (userOptional.isPresent()) {
+            try {
+                return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
+            } catch (Exception e) {
+
+                // TODO: Implement logging of errors
+                throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), id);
+            }
+        } else {
+            throw new CustomErrorException(HttpStatus.NOT_FOUND, "User could not be found under this id", id);
         }
     }
 
     @Transactional
-    public User updateUser(UUID id, User user) {
-        try {
-            Optional<User> userOptional = userRepository.findById(id);
-            if (userOptional.isPresent()) {
-                return userRepository.save(new User(user.getId(), user.getUsername()));
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
+    public ResponseEntity<User> updateUser(String id, User user) {
+        Optional<User> userOptional = userRepository.findById(id);
 
-            // TODO: Implement logging of errors and give it back as response over HTTP
-            System.out.println(e);
-            return null;
+        if (userOptional.isPresent()) {
+            try {
+                User _user = userRepository.save(new User(id, user.getUsername()));
+                return new ResponseEntity<>(_user, HttpStatus.OK);
+            } catch (Exception e) {
+
+                // TODO: Implement logging of errors
+                throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), user);
+            }
+        } else {
+            throw new CustomErrorException(HttpStatus.NO_CONTENT, "User with this id was not found in DB", user);
         }
     }
 
-    public User saveUser(User user) {
-        try {
-            Optional<User> userOptional = userRepository.findByUsername(user.getUsername());
-            if (userOptional.isEmpty()) {
-                return userRepository.save(user);
-            }
-            return null;
-        } catch (Exception e) {
+    public ResponseEntity<User> saveUser(User user) {
+        Optional<User> userOptional = userRepository.findByUsername(user.getUsername());
 
-            // TODO: Implement logging of errors and give it back as response over HTTP
-            System.out.println(e);
-            return null;
+        if (userOptional.isEmpty()) {
+            try {
+                User _user = userRepository.save(user);
+                return new ResponseEntity<>(_user, HttpStatus.CREATED);
+            } catch (Exception e) {
+
+                // TODO: Implement logging of errors
+                throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), user);
+            }
+        } else {
+            throw new CustomErrorException(HttpStatus.CONFLICT,
+                    "User with this username already saved in DB",
+                    user.getUsername());
+        }
+    }
+
+    public ResponseEntity<?> deleteUser(String id) {
+        Optional<User> userOptional = userRepository.findById(id);
+
+        if (userOptional.isPresent()) {
+            try {
+                userRepository.deleteUserById(id);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } catch (Exception e) {
+
+                // TODO: Implement logging of errors
+                throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), id);
+            }
+        } else {
+            throw new CustomErrorException(HttpStatus.NO_CONTENT, "No user found under this id", id);
         }
     }
 }

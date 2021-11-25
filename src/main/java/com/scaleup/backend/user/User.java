@@ -18,7 +18,7 @@ public class User {
 
     @PrimaryKeyColumn(name= "id", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     @Column("uuid")
-    private UUID id;
+    private String id;
 
     @Column("username")
     private String username;
