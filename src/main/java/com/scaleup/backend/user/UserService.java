@@ -85,4 +85,21 @@ public class UserService {
                     user.getUsername());
         }
     }
+
+    public ResponseEntity<?> deleteUser(UUID id) {
+        Optional<User> userOptional = userRepository.findById(id);
+
+        if (userOptional.isPresent()) {
+            try {
+                userRepository.deleteUserById(id);
+                return new ResponseEntity<>(HttpStatus.OK);
+            } catch (Exception e) {
+
+                // TODO: Implement logging of errors
+                throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), id);
+            }
+        } else {
+            throw new CustomErrorException(HttpStatus.NO_CONTENT, "No user found under this id", id);
+        }
+    }
 }

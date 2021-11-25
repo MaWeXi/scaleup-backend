@@ -18,22 +18,27 @@ public class UserController {
     }
 
     @GetMapping("/user/all")
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<User>> getUsers() {
         return userService.getAllUsers();
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable("id") UUID id) {
+    public ResponseEntity<User> getUser(@PathVariable("id") UUID id) {
         return userService.getUserById(id);
     }
 
     @PostMapping("/user")
-    public ResponseEntity<User> createTutorial(@RequestBody User user) {
+    public ResponseEntity<User> createUser(@RequestBody User user) {
         return userService.saveUser(user);
     }
 
     @PutMapping("/user/{id}")
-    public ResponseEntity<User> updateTutorial(@PathVariable("id") UUID id, @RequestBody User user) {
+    public ResponseEntity<User> updateUser(@PathVariable("id") UUID id, @RequestBody User user) {
         return userService.updateUser(id, user);
+    }
+
+    @DeleteMapping("/user/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable("id") UUID id) {
+        return userService.deleteUser(id);
     }
 }
