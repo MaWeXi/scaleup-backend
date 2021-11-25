@@ -33,7 +33,7 @@ public class UserService {
         }
     }
 
-    public ResponseEntity<User> getUserById(UUID id) {
+    public ResponseEntity<User> getUserById(String id) {
         Optional<User> userOptional = userRepository.findById(id);
 
         if (userOptional.isPresent()) {
@@ -50,7 +50,7 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseEntity<User> updateUser(UUID id, User user) {
+    public ResponseEntity<User> updateUser(String id, User user) {
         Optional<User> userOptional = userRepository.findById(id);
 
         if (userOptional.isPresent()) {
@@ -86,7 +86,7 @@ public class UserService {
         }
     }
 
-    public ResponseEntity<?> deleteUser(UUID id) {
+    public ResponseEntity<?> deleteUser(String id) {
         Optional<User> userOptional = userRepository.findById(id);
 
         if (userOptional.isPresent()) {

@@ -9,15 +9,15 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends CassandraRepository<User, UUID> {
+public interface UserRepository extends CassandraRepository<User, String> {
 
     @AllowFiltering
     @NonNull
-    Optional<User> findById(@NonNull UUID id);
+    Optional<User> findById(@NonNull String id);
 
     @AllowFiltering
     Optional<User> findByUsername(String username);
 
     @AllowFiltering
-    void deleteUserById(UUID id);
+    void deleteUserById(String id);
 }
