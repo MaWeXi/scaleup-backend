@@ -4,12 +4,12 @@ package com.scaleup.backend.user;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.cassandra.core.mapping.Column;
-import org.springframework.data.cassandra.core.mapping.PrimaryKey;
-import org.springframework.data.cassandra.core.mapping.Table;
+import org.springframework.data.cassandra.core.mapping.*;
 
-@Table("users")
+import java.util.LinkedHashMap;
+
 @Data
+@Table("users")
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
@@ -19,4 +19,8 @@ public class User {
 
     @Column("username")
     private String username;
+
+    @Column("leagues")
+    @Frozen
+    private LinkedHashMap<String, String> leagues;
 }

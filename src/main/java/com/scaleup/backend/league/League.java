@@ -5,22 +5,22 @@ import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
-@Table("leagues")
 @Data
+@Table("leagues")
 @AllArgsConstructor
 @NoArgsConstructor
 public class League {
 
     @PrimaryKey("id")
-    private String id;
+    private String leagueId;
 
     @Column("name")
     private String leagueName;
 
     @Column("code")
-    private String code;
+    private String leagueCode;
 
     @Column("start_budget")
     private Double startBudget;
@@ -32,5 +32,5 @@ public class League {
     private Integer stockAmount;
 
     @Column("probability")
-    private HashMap<String, Double> probability;
+    private LinkedHashMap<String, Double> probability;
 }
