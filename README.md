@@ -54,8 +54,8 @@ API Requests and responses for the user controller
 
   ```json
   {
-    "leagueId": "1d701622-4e4c-481e-84ad-02b8aec21136",
-    "leagueCode": "0000"
+      "leagueId": "1d701622-4e4c-481e-84ad-02b8aec21136",
+      "leagueCode": "0000"
   }
   ```
 
@@ -137,19 +137,19 @@ API Requests and responses for the leagues controller\
 
   ```json
   {
-    "userId": "ba7159b0-10e8-4141-b085-4d1060bd739c",
-    "leagueId": "1d701622-4e4c-481e-84ad-02b8aec21136",
-    "leagueName": "Best league ever",
-    "code": "0000",
-    "startBudget": 10000,
-    "transactionCost": 5,
-    "stockAmount": 200,
-    "probability":
-    {
-      "Technology": 0.5,
-      "Communication Services": 0.5,
-      "...": "..."
-    }
+      "userId": "ba7159b0-10e8-4141-b085-4d1060bd739c",
+      "leagueId": "1d701622-4e4c-481e-84ad-02b8aec21136",
+      "leagueName": "Best league ever",
+      "code": "0000",
+      "startBudget": 10000,
+      "transactionCost": 5,
+      "stockAmount": 200,
+      "probability":
+      {
+          "Technology": 0.5,
+          "Communication Services": 0.5,
+          "...": "..."
+      }
   }
   ```
 
