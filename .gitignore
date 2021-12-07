@@ -31,7 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-
-
-### Astra Configuration ###
-!**/src/main/resources/application.yml
