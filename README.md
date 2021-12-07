@@ -14,7 +14,7 @@ API Requests and responses for the user controller
   <tr>
    <td> HTTP </td> <td> URL </td> <td> Body </td>
   </tr>
-  </tr>
+  <tr>
   <td> POST </td>
   <td> http://localhost:8080/api/v1/user/ </td>
   <td>
@@ -22,12 +22,13 @@ API Requests and responses for the user controller
   ```json
   {
       "id": "15787aab-9ec8-48c8-9535-ba1ff585b16a",
-      "username": "horst"
+      "username": "horst",
+      "leagues": {}
   }
   ```
 
   </td>
-  </tr>
+  <tr>
   <tr>
   <td> GET </td>
   <td> http://localhost:8080/api/v1/user/all </td>
@@ -46,20 +47,20 @@ API Requests and responses for the user controller
 
   </td>
   </tr>
-  </tr>
+  <tr>
   <td> PUT </td>
-  <td> http://localhost:8080/api/v1/user/{id} </td>
+  <td> http://localhost:8080/api/v1/user/{id}/leagues </td>
   <td>
 
   ```json
   {
-      "id": "15787aab-9ec8-48c8-9535-ba1ff585b16a",
-      "username": "hans"
+    "leagueId": "1d701622-4e4c-481e-84ad-02b8aec21136",
+    "leagueCode": "0000"
   }
   ```
 
   </td>
-  </tr>
+  <tr>
 </table>
 
 ### API Response
@@ -75,7 +76,8 @@ API Requests and responses for the user controller
   ```json
   {
       "id": "15787aab-9ec8-48c8-9535-ba1ff585b16a",
-      "username": "horst"
+      "username": "user1",
+      "leagues": {}
   }
   ```
 
@@ -85,15 +87,31 @@ API Requests and responses for the user controller
   <td> 204 </td>
   <td>
 
-  `No content`
+No users saved in DB
 
   </td>
   </tr>
+  <tr>
+  <td> 404 </td>
+  <td>
+
+User could not be found under this id or username
+
+  </td>
   </tr>
+  <tr>
+  <td> 409 </td>
+  <td>
+
+User with this username already saved in DB
+
+  </td>
+  </tr>
+  <tr>
   <td> 400 </td>
   <td>
 
-  **Markdown** _here_. (Blank lines needed before and after!)
+**Bad Request**
 
   </td>
   </tr>
@@ -112,9 +130,34 @@ API Requests and responses for the leagues controller\
   <tr>
    <td> HTTP </td> <td> URL </td> <td> Body </td>
   </tr>
-  </tr>
+  <tr>
   <td> POST </td>
-  <td> http://localhost:8080/api/v1/ </td>
+  <td> http://localhost:8080/api/v1/league/ </td>
+  <td>
+
+  ```json
+  {
+  "userId": "ba7159b0-10e8-4141-b085-4d1060bd739c",
+  "leagueId": "1d701622-4e4c-481e-84ad-02b8aec21136",
+  "leagueName": "Best league ever",
+  "code": "0000",
+  "startBudget": 10000,
+  "transactionCost": 5,
+  "stockAmount": 200,
+  "probability":
+  {
+    "Technology": 0.5,
+    "Communication Services": 0.5,
+    "...": "..."
+  }
+}
+  ```
+
+  </td>
+  </tr>
+  <tr>
+  <td> GET </td>
+  <td> http://localhost:8080/api/v1/league/{id} </td>
   <td>
 
   `-`
@@ -123,7 +166,7 @@ API Requests and responses for the leagues controller\
   </tr>
   <tr>
   <td> GET </td>
-  <td> http://localhost:8080/api/v1/ </td>
+  <td> http://localhost:8080/api/v1/league/all </td>
   <td>
 
   `-`
@@ -131,17 +174,8 @@ API Requests and responses for the leagues controller\
   </td>
   </tr>
   <tr>
-  <td> GET </td>
-  <td> http://localhost:8080/api/v1 </td>
-  <td>
-
-  `-`
-
-  </td>
-  </tr>
-  </tr>
   <td> PUT </td>
-  <td> http://localhost:8080/api/v1/ </td>
+  <td> tbc. </td>
   <td>
 
   `-`
@@ -160,7 +194,7 @@ API Requests and responses for the leagues controller\
   <td> 200 </td>
   <td>
 
-  **Markdown** _here_. (Blank lines needed before and after!)
+  **OK**
 
   </td>
   </tr>
@@ -168,15 +202,31 @@ API Requests and responses for the leagues controller\
   <td> 204 </td>
   <td>
 
-  `No content`
+No leagues saved in DB
 
   </td>
   </tr>
+  <tr>
+  <td> 404 </td>
+  <td>
+
+League could not be found under this id
+
+  </td>
   </tr>
+  <tr>
+  <td> 409 </td>
+  <td>
+
+Either this league id does already exist or the user does not exist in the DB
+
+  </td>
+  </tr>
+  <tr>
   <td> 400 </td>
   <td>
 
-  **Markdown** _here_. (Blank lines needed before and after!)
+**Bad request**
 
   </td>
   </tr>

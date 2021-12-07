@@ -1,7 +1,7 @@
 package com.scaleup.backend.user;
 
 import com.scaleup.backend.exceptionHandling.CustomErrorException;
-import com.scaleup.backend.league.DTOs.AddLeagueDTO;
+import com.scaleup.backend.league.DTO.AddLeagueDTO;
 import com.scaleup.backend.league.League;
 import com.scaleup.backend.league.LeagueRepository;
 import org.springframework.http.HttpStatus;

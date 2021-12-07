@@ -1,7 +1,7 @@
 package com.scaleup.backend.user;
 
 
-import com.scaleup.backend.league.DTOs.AddLeagueDTO;
+import com.scaleup.backend.league.DTO.AddLeagueDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

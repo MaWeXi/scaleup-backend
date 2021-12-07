@@ -1,7 +1,7 @@
 package com.scaleup.backend.league;
 
 import com.scaleup.backend.exceptionHandling.CustomErrorException;
-import com.scaleup.backend.league.DTOs.LeagueDTO;
+import com.scaleup.backend.league.DTO.LeagueDTO;
 import com.scaleup.backend.user.User;
 import com.scaleup.backend.user.UserRepository;
 import org.modelmapper.ModelMapper;

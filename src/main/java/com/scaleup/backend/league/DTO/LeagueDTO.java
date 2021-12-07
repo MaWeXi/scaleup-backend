@@ -1,4 +1,4 @@
-package com.scaleup.backend.league.DTOs;
+package com.scaleup.backend.league.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
