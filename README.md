@@ -6,7 +6,9 @@ ___
 
 ## Users
 
-API Requests and responses for the user controller
+API Requests and responses for the user controller.
+
+_Always look at the message in the JSON response for further information if you get an error._
 
 ### API Requests
 
@@ -154,7 +156,7 @@ API Requests and responses for the leagues controller\
   ```
 
   </td>
-  </tr>
+  <tr>
   <tr>
   <td> GET </td>
   <td> http://localhost:8080/api/v1/league/{id} </td>
@@ -181,7 +183,7 @@ API Requests and responses for the leagues controller\
   `-`
 
   </td>
-  </tr>
+  <tr>
 </table>
 
 ### API Response
@@ -227,6 +229,86 @@ Either this league id does already exist or the user does not exist in the DB
   <td>
 
 **Bad request**
+
+  </td>
+  <tr>
+</table>
+
+
+___
+
+## Stocks
+
+API Requests and responses for the stock controller\
+
+### API Requests
+
+<table>
+  <tr>
+   <td> HTTP </td> <td> URL </td> <td> Body </td>
+  </tr>
+  <tr>
+  <td> GET </td>
+  <td> http://localhost:8080/api/v1/stock/{symbol} </td>
+  <td>
+
+`-`
+
+  </td>
+  </tr>
+  <tr>
+  <td> GET </td>
+  <td> tbc. </td>
+  <td>
+
+`-`
+
+  </td>
+  </tr>
+</table>
+
+### API Response
+
+<table>
+  <tr>
+  <td> Status </td> <td> Response </td>
+  </tr>
+  <tr>
+  <td> 200 </td>
+  <td>
+
+```json
+{
+    "symbol": "BTC-EUR",
+    "lastUpdated": "2021-12-06T19:05:29.000+00:00",
+    "price": 43411.125,
+    "dayOpen": 43632.46,
+    "previousClose": 43632.46,
+    "dayHigh": 43644.844,
+    "dayLow": 41835.867,
+    "fiftyTwoHigh": 59496.15,
+    "fiftyTwoLow": 14539.374,
+    "volume": 3.15467428E10,
+    "stockType": "CRYPTOCURRENCY",
+    "sector": "Blockchain"
+}
+```
+
+  </td>
+  </tr>
+  <tr>
+  <td> 404 </td>
+  <td>
+
+Stock with this symbol could not be found in the DB
+
+  </td>
+  </tr>
+  <tr>
+  <td> 400 </td>
+  <td>
+
+**Bad Request**
 
   </td>
   </tr>
