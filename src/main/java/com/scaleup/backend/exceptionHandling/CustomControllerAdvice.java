@@ -12,9 +12,7 @@ import java.io.StringWriter;
 class CustomControllerAdvice {
 
     @ExceptionHandler(CustomErrorException.class)
-    public ResponseEntity<ErrorResponse> handleCustomErrorExceptions(
-            Exception e
-    ) {
+    public ResponseEntity<ErrorResponse> handleCustomErrorExceptions(Exception e) {
         // casting the generic Exception e to CustomErrorException
         CustomErrorException customErrorException = (CustomErrorException) e;
 
