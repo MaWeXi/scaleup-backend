@@ -1,7 +1,7 @@
 package com.scaleup.backend.user;
 
 import com.scaleup.backend.exceptionHandling.CustomErrorException;
-import com.scaleup.backend.league.DTOs.NewLeagueDTO;
+import com.scaleup.backend.league.DTOs.AddLeagueDTO;
 import com.scaleup.backend.league.League;
 import com.scaleup.backend.league.LeagueRepository;
 import org.springframework.http.HttpStatus;
@@ -55,22 +55,27 @@ public class UserService {
     }
 
     @Transactional
-    public ResponseEntity<User> updateUser(String id, NewLeagueDTO newLeague) {
+    public ResponseEntity<User> updateUser(String id, AddLeagueDTO newLeague) {
         Optional<User> userOptional = userRepository.findById(id);
-        Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueId(newLeague.getLeagueId());
+        Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueIdAndLeagueCode(
+                newLeague.getLeagueId(),
+                newLeague.getLeagueCode()
+        );
 
         // Check if league and user are store in DB for given IDs
         if (userOptional.isPresent() && leagueOptional.isPresent()) {
             try {
+                League league = leagueOptional.get();
+
                 // Check if user is already in given league
                 if (userOptional.get().getLeagues().containsKey(newLeague.getLeagueId())) {
-                    throw new CustomErrorException(HttpStatus.NO_CONTENT,
+                    throw new CustomErrorException(HttpStatus.CONFLICT,
                             "User is already in this league",
                             newLeague);
                 } else {
                     // Add new league to already stored leagues
                     LinkedHashMap<String, String> leagues = userOptional.get().getLeagues();
-                    leagues.put(newLeague.getLeagueId(), newLeague.getLeagueName());
+                    leagues.put(newLeague.getLeagueId(), league.getLeagueName());
 
                     // Store all leagues in DB
                     userRepository.updateUserLeagues(leagues, id);
@@ -82,7 +87,7 @@ public class UserService {
                 throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), newLeague);
             }
         } else {
-            throw new CustomErrorException(HttpStatus.NO_CONTENT,
+            throw new CustomErrorException(HttpStatus.NOT_FOUND,
                     "Either the user or the league with this id does not exist",
                     newLeague);
         }
@@ -99,7 +104,7 @@ public class UserService {
 
                 // Check if user is already in given league
                 if (userOptional.get().getLeagues().containsKey(league.getLeagueId())) {
-                    throw new CustomErrorException(HttpStatus.NO_CONTENT,
+                    throw new CustomErrorException(HttpStatus.CONFLICT,
                             "User is already in this league",
                             league);
                 } else {
@@ -117,7 +122,7 @@ public class UserService {
                 throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), leagueCode);
             }
         } else {
-            throw new CustomErrorException(HttpStatus.NO_CONTENT,
+            throw new CustomErrorException(HttpStatus.NOT_FOUND,
                     "Either the user or the league with this id does not exist",
                     leagueCode);
         }
@@ -155,7 +160,7 @@ public class UserService {
                 throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), id);
             }
         } else {
-            throw new CustomErrorException(HttpStatus.NO_CONTENT, "No user found under this id", id);
+            throw new CustomErrorException(HttpStatus.NOT_FOUND, "No user found under this id", id);
         }
     }
 }

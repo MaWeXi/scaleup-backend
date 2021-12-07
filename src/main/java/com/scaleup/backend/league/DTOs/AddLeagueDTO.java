@@ -7,8 +7,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class NewLeagueDTO {
+public class AddLeagueDTO {
 
     private String leagueId;
-    private String leagueName;
+    private String leagueCode;
 }

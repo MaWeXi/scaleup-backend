@@ -1,7 +1,7 @@
 package com.scaleup.backend.user;
 
 
-import com.scaleup.backend.league.DTOs.NewLeagueDTO;
+import com.scaleup.backend.league.DTOs.AddLeagueDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,8 +33,8 @@ public class UserController {
     }
 
     @PutMapping("/user/{id}/league")
-    public ResponseEntity<User> updateUser(@PathVariable("id") String id, @RequestBody NewLeagueDTO newLeagueDTO) {
-        return userService.updateUser(id, newLeagueDTO);
+    public ResponseEntity<User> updateUser(@PathVariable("id") String id, @RequestBody AddLeagueDTO addLeagueDTO) {
+        return userService.updateUser(id, addLeagueDTO);
     }
 
     @PutMapping("user/{id}")
