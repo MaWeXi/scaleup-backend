@@ -1,11 +1,11 @@
 package com.scaleup.backend.user;
 
 
+import com.scaleup.backend.league.DTO.AddLeagueDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -32,9 +32,14 @@ public class UserController {
         return userService.saveUser(user);
     }
 
-    @PutMapping("/user/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable("id") String id, @RequestBody User user) {
-        return userService.updateUser(id, user);
+    @PutMapping("/user/{id}/league")
+    public ResponseEntity<User> updateUser(@PathVariable("id") String id, @RequestBody AddLeagueDTO addLeagueDTO) {
+        return userService.updateUser(id, addLeagueDTO);
+    }
+
+    @PutMapping("user/{id}")
+    public ResponseEntity<User> updateUserLeague(@PathVariable("id") String id, @RequestParam String leagueCode) {
+        return userService.updateUserLeague(id, leagueCode);
     }
 
     @DeleteMapping("/user/{id}")
