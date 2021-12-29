@@ -4,11 +4,14 @@ import com.scaleup.backend.exceptionHandling.CustomErrorException;
 import com.scaleup.backend.league.DTO.AddLeagueDTO;
 import com.scaleup.backend.league.League;
 import com.scaleup.backend.league.LeagueRepository;
+import com.scaleup.backend.userByLeague.UserByLeague;
+import com.scaleup.backend.userByLeague.UserByLeagueRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
@@ -18,10 +21,12 @@ public class UserService {
 
     final UserRepository userRepository;
     final LeagueRepository leagueRepository;
+    final UserByLeagueRepository userByLeagueRepository;
 
-    public UserService(UserRepository userRepository, LeagueRepository leagueRepository) {
+    public UserService(UserRepository userRepository, LeagueRepository leagueRepository, UserByLeagueRepository userByLeagueRepository) {
         this.userRepository = userRepository;
         this.leagueRepository = leagueRepository;
+        this.userByLeagueRepository = userByLeagueRepository;
     }
 
     public ResponseEntity<List<User>> getAllUsers() {
@@ -61,31 +66,40 @@ public class UserService {
                 newLeague.getLeagueId(),
                 newLeague.getLeagueCode()
         );
+        Optional<UserByLeague> userByLeague = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(newLeague.getLeagueId(), id);
 
         // Check if league and user are store in DB for given IDs
         if (userOptional.isPresent() && leagueOptional.isPresent()) {
-            try {
-                League league = leagueOptional.get();
+            if (userByLeague.isEmpty()){
+                try {
+                    League league = leagueOptional.get();
 
-                // Check if user is already in given league
-                if (userOptional.get().getLeagues().containsKey(newLeague.getLeagueId())) {
-                    throw new CustomErrorException(HttpStatus.CONFLICT,
-                            "User is already in this league",
-                            newLeague);
-                } else {
-                    // Add new league to already stored leagues
-                    LinkedHashMap<String, String> leagues = userOptional.get().getLeagues();
-                    leagues.put(newLeague.getLeagueId(), league.getLeagueName());
+                    // Check if user is already in given league
+                    if (userOptional.get().getLeagues().containsKey(newLeague.getLeagueId())) {
+                        throw new CustomErrorException(HttpStatus.CONFLICT,
+                                "The user already joined this league",
+                                newLeague);
+                    } else {
+                        // Add new league to already stored leagues
+                        LinkedHashMap<String, String> leagues = userOptional.get().getLeagues();
+                        leagues.put(newLeague.getLeagueId(), league.getLeagueName());
 
-                    // Store all leagues in DB
-                    userRepository.updateUserLeagues(leagues, id);
-                    return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
+                        // Store all leagues in DB
+                        userRepository.updateUserLeagues(leagues, id);
+                        // Create new userByLeague
+                        userByLeagueRepository.save(new UserByLeague(newLeague.getLeagueId(), BigDecimal.ZERO, id, Boolean.FALSE, BigDecimal.valueOf(leagueOptional.get().getStartBudget()), Boolean.FALSE, Boolean.FALSE, Boolean.FALSE));
+                        return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
+                    }
+                } catch (Exception e) {
+
+                    // TODO: Implement logging of errors
+                    throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), newLeague);
                 }
-            } catch (Exception e) {
-
-                // TODO: Implement logging of errors
-                throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), newLeague);
+            } else {
+                throw new CustomErrorException(HttpStatus.CONFLICT,
+                        "The user already joined this league");
             }
+
         } else {
             throw new CustomErrorException(HttpStatus.NOT_FOUND,
                     "Either the user or the league with this id does not exist",

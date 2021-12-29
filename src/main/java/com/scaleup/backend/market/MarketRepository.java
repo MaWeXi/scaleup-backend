@@ -14,12 +14,15 @@ import java.util.UUID;
 public interface MarketRepository extends CassandraRepository <Market, String>{
 
     @AllowFiltering
+    Optional<Market> findMarketByLeagueidAndSymbolEquals(String leagueid, String symbol);
+
+    @AllowFiltering
     List<Market> findMarketByLeagueid(String league);
 
     @AllowFiltering
     void deleteMarketsByLeagueidEquals(String league);
 
     @AllowFiltering
-    @Query("UPDATE markets set joker_activated=TRUE where leagueid=?1")
-    void updateMarketJoker(String leagueid);
+    @Query("UPDATE markets set joker_activated=TRUE where leagueid=?1 AND symbol=?2")
+    void updateMarketJoker(String leagueid, String symbol);
 }

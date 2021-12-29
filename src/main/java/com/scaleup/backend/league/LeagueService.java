@@ -4,12 +4,15 @@ import com.scaleup.backend.exceptionHandling.CustomErrorException;
 import com.scaleup.backend.league.DTO.LeagueDTO;
 import com.scaleup.backend.user.User;
 import com.scaleup.backend.user.UserRepository;
+import com.scaleup.backend.userByLeague.UserByLeague;
+import com.scaleup.backend.userByLeague.UserByLeagueRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
@@ -19,11 +22,13 @@ public class LeagueService {
 
     final LeagueRepository leagueRepository;
     final UserRepository userRepository;
+    final UserByLeagueRepository userByLeagueRepository;
     final ModelMapper modelMapper = new ModelMapper();
 
-    public LeagueService(LeagueRepository leagueRepository, UserRepository userRepository) {
+    public LeagueService(LeagueRepository leagueRepository, UserRepository userRepository, UserByLeagueRepository userByLeagueRepository) {
         this.leagueRepository = leagueRepository;
         this.userRepository = userRepository;
+        this.userByLeagueRepository = userByLeagueRepository;
     }
 
     public ResponseEntity<List<League>> getAllLeagues() {
@@ -60,8 +65,9 @@ public class LeagueService {
     public ResponseEntity<League> createLeague(LeagueDTO leagueDTO) {
         Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueId(leagueDTO.getLeagueId());
         Optional<User> userOptional = userRepository.findUserById(leagueDTO.getUserId());
+        Optional<UserByLeague> userByLeague = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(leagueDTO.getLeagueId(), leagueDTO.getUserId());
 
-        if (leagueOptional.isEmpty() && userOptional.isPresent()) {
+        if (leagueOptional.isEmpty() && userOptional.isPresent() && userByLeague.isPresent()) {
             try {
                 League league = modelMapper.map(leagueDTO, League.class);
                 League _league = leagueRepository.save(league);
@@ -76,6 +82,7 @@ public class LeagueService {
                 }
                 userLeagues.put(_league.getLeagueId(), _league.getLeagueName());
                 userRepository.updateUserLeagues(userLeagues, savedUser.getId());
+                userByLeagueRepository.save(new UserByLeague(leagueDTO.getLeagueId(), BigDecimal.ZERO, leagueDTO.getUserId(), Boolean.TRUE, BigDecimal.valueOf(leagueDTO.getStartBudget()), Boolean.FALSE, Boolean.FALSE, Boolean.FALSE));
 
                 return new ResponseEntity<>(_league, HttpStatus.CREATED);
             } catch (Exception e) {
@@ -85,7 +92,7 @@ public class LeagueService {
             }
         } else {
             throw new CustomErrorException(HttpStatus.CONFLICT,
-                    "Either this league id does already exist or the user does not exist in the DB",
+                    "Either this league id does already exist or the user does not exist in the DB or the user is already in this league",
                     leagueDTO);
         }
     }
