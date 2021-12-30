@@ -67,7 +67,7 @@ public class LeagueService {
         Optional<User> userOptional = userRepository.findUserById(leagueDTO.getUserId());
         Optional<UserByLeague> userByLeague = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(leagueDTO.getLeagueId(), leagueDTO.getUserId());
 
-        if (leagueOptional.isEmpty() && userOptional.isPresent() && userByLeague.isPresent()) {
+        if (leagueOptional.isEmpty() && userOptional.isPresent() && userByLeague.isEmpty()) {
             try {
                 League league = modelMapper.map(leagueDTO, League.class);
                 League _league = leagueRepository.save(league);

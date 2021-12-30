@@ -139,7 +139,7 @@ public class MarketService {
                 // Delete old market
                 marketRepository.deleteMarketsByLeagueidEquals(leagueid);
 
-                // set timestamps
+                // set timestamps ------
                 Timestamp tsNow = new Timestamp(System.currentTimeMillis());
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(tsNow);
