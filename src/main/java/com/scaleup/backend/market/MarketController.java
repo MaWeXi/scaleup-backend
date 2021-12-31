@@ -1,23 +1,21 @@
 package com.scaleup.backend.market;
 
-import com.scaleup.backend.league.DTO.AddLeagueDTO;
 import com.scaleup.backend.market.DTO.UpdateJoker;
-import com.scaleup.backend.market.Market;
-import com.scaleup.backend.market.MarketService;
-import com.scaleup.backend.user.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/")
 public class MarketController {
 
+    final MarketRepository marketRepository;
     final MarketService marketService;
 
-    public MarketController(MarketService marketService) {
+    public MarketController(MarketRepository marketRepository, MarketService marketService) {
+        this.marketRepository = marketRepository;
         this.marketService = marketService;
     }
 
@@ -34,5 +32,10 @@ public class MarketController {
     @PutMapping("/market/joker/update/{leagueid}")
     public ResponseEntity<Market> updateJoker(@PathVariable("leagueid") String leagueid, @RequestBody UpdateJoker updateJoker) {
         return marketService.updateJoker(leagueid, updateJoker);
+    }
+
+    @PostMapping("/market/addEntity")
+    public ResponseEntity<Market> addEntity(@RequestBody Market market) {
+        return new ResponseEntity<>(marketRepository.save(market), HttpStatus.OK);
     }
 }

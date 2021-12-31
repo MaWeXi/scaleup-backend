@@ -6,6 +6,7 @@ import org.springframework.data.cassandra.repository.Query;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
@@ -25,4 +26,8 @@ public interface MarketRepository extends CassandraRepository <Market, String>{
     @AllowFiltering
     @Query("UPDATE markets set joker_activated=TRUE where leagueid=?1 AND symbol=?2")
     void updateMarketJoker(String leagueid, String symbol);
+
+    @AllowFiltering
+    @Query("UPDATE markets set current_value=?1 where leagueid=?2 AND symbol=?3")
+    void updateCurrentValue(BigDecimal current_value, String leagueid, String symbol);
 }

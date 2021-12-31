@@ -17,7 +17,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Market {
-    // leagueID | symbol | current_value | date_entered | date_left | joker_active
+    // leagueId | symbol | current_value | date_entered | date_left | joker_active
     @PrimaryKeyColumn(name = "leagueId", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private String leagueid;
 
