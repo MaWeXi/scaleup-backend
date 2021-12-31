@@ -336,14 +336,22 @@ API Requests and responses for the market controller\
   </td>
   </tr>
   <tr>
-  <td> GET </td>
-  <td> tbc. </td>
-  <td>
-
-`-`
+  <td> Put </td>
+  <td> http://localhost:8080/api/v1/market/joker/update/{leagueid} </td>
+  <td> 
+    ```json
+    {
+    "leagueid": "1d701622-4e4c-1111-1111-testleague36",
+    "symbol": "AINN.DE",
+    "current_value": null,
+    "date_entered": "2021-12-26T19:30:24.507+00:00",
+    "date_left": "2022-01-09T19:30:24.507+00:00",
+    "joker_active": true
+    }
 
   </td>
   </tr>
+  
 </table>
 
 ### API Response
