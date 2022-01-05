@@ -51,7 +51,7 @@ _Always look at the message in the JSON response for further information if you 
   </tr>
   <tr>
   <td> PUT </td>
-  <td> http://localhost:8080/api/v1/user/joinleague/{id} </td>
+  <td> http://localhost:8080/api/v1/user/join_league/{id} </td>
   <td>
 
   ```json
