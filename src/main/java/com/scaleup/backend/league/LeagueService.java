@@ -66,8 +66,11 @@ public class LeagueService {
     public ResponseEntity<League> createLeague(LeagueDTO leagueDTO) {
         Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueId(leagueDTO.getLeagueId());
         Optional<User> userOptional = userRepository.findUserById(leagueDTO.getUserId());
+        Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(
+                leagueDTO.getLeagueId(),
+                leagueDTO.getUserId());
 
-        if (leagueOptional.isEmpty() && userOptional.isPresent()) {
+        if (leagueOptional.isEmpty() && userOptional.isPresent() && userByLeagueOptional.isEmpty()) {
             try {
 
                 /*
@@ -94,9 +97,9 @@ public class LeagueService {
                 /*
                 Save new league and user as admin to user_by_league DB
                  */
-                UserByLeagueKey key = new UserByLeagueKey(leagueDTO.getLeagueId(), new BigDecimal("0"));
+                UserByLeagueKey key = new UserByLeagueKey(leagueDTO.getLeagueId(), BigDecimal.ZERO);
                 UserByLeague userByLeague = new UserByLeague(key, savedUser.getUsername(), leagueDTO.getStartBudget(),
-                true, true, true, true);
+                true, false, false, false);
                 userByLeagueRepository.save(userByLeague);
 
                 return new ResponseEntity<>(_league, HttpStatus.CREATED);

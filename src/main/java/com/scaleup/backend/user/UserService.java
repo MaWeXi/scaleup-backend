@@ -67,9 +67,11 @@ public class UserService {
                 newLeague.getLeagueId(),
                 newLeague.getLeagueCode()
         );
+        Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(
+                newLeague.getLeagueId(), userId);
 
         // Check if league and user are store in DB for given IDs
-        if (userOptional.isPresent() && leagueOptional.isPresent()) {
+        if (userOptional.isPresent() && leagueOptional.isPresent() && userByLeagueOptional.isEmpty()) {
             try {
 
                 /*
@@ -93,9 +95,9 @@ public class UserService {
                     /*
                     Save user to user_by_league DB
                      */
-                    UserByLeagueKey key = new UserByLeagueKey(league.getLeagueId(), new BigDecimal("0"));
+                    UserByLeagueKey key = new UserByLeagueKey(league.getLeagueId(), BigDecimal.ZERO);
                     UserByLeague userByLeague = new UserByLeague(key, user.getUsername(), league.getStartBudget(),
-                            true, true, true, true);
+                            true, false, false, false);
                     userByLeagueRepository.save(userByLeague);
 
                     return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);

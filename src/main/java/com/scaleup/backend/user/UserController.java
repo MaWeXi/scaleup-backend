@@ -32,7 +32,7 @@ public class UserController {
         return userService.saveUser(user);
     }
 
-    @PutMapping("/user/{id}/league")
+    @PutMapping("/user/join_league/{id}/")
     public ResponseEntity<User> updateUser(@PathVariable("id") String userId, @RequestBody AddLeagueDTO addLeagueDTO) {
         return userService.updateUser(userId, addLeagueDTO);
     }
