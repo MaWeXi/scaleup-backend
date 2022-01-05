@@ -51,7 +51,7 @@ _Always look at the message in the JSON response for further information if you 
   </tr>
   <tr>
   <td> PUT </td>
-  <td> http://localhost:8080/api/v1/user/{id}/leagues </td>
+  <td> http://localhost:8080/api/v1/user/joinleague/{id} </td>
   <td>
 
   ```json
@@ -265,6 +265,93 @@ API Requests and responses for the stock controller\
 
   </td>
   </tr>
+</table>
+
+### API Response
+
+<table>
+  <tr>
+  <td> Status </td> <td> Response </td>
+  </tr>
+  <tr>
+  <td> 200 </td>
+  <td>
+
+```json
+{
+    "symbol": "BTC-EUR",
+    "lastUpdated": "2021-12-06T19:05:29.000+00:00",
+    "price": 43411.125,
+    "dayOpen": 43632.46,
+    "previousClose": 43632.46,
+    "dayHigh": 43644.844,
+    "dayLow": 41835.867,
+    "fiftyTwoHigh": 59496.15,
+    "fiftyTwoLow": 14539.374,
+    "volume": 3.15467428E10,
+    "stockType": "CRYPTOCURRENCY",
+    "sector": "Blockchain"
+}
+```
+
+  </td>
+  </tr>
+  <tr>
+  <td> 404 </td>
+  <td>
+
+Stock with this symbol could not be found in the DB
+
+  </td>
+  </tr>
+  <tr>
+  <td> 400 </td>
+  <td>
+
+**Bad Request**
+
+  </td>
+  </tr>
+</table>
+
+___
+
+## Markets
+
+API Requests and responses for the market controller\
+
+### API Requests
+
+<table>
+  <tr>
+   <td> HTTP </td> <td> URL </td> <td> Body </td>
+  </tr>
+  <tr>
+  <td> GET </td>
+  <td> http://localhost:8080/api/v1/market/{leagueid} </td>
+  <td>
+
+`-`
+
+  </td>
+  </tr>
+  <tr>
+  <td> Put </td>
+  <td> http://localhost:8080/api/v1/market/joker/update/{leagueid} </td>
+  <td> 
+    ```json
+    {
+    "leagueid": "1d701622-4e4c-1111-1111-testleague36",
+    "symbol": "AINN.DE",
+    "current_value": null,
+    "date_entered": "2021-12-26T19:30:24.507+00:00",
+    "date_left": "2022-01-09T19:30:24.507+00:00",
+    "joker_active": true
+    }
+
+  </td>
+  </tr>
+  
 </table>
 
 ### API Response

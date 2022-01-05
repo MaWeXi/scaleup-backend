@@ -66,11 +66,13 @@ public class LeagueService {
     public ResponseEntity<League> createLeague(LeagueDTO leagueDTO) {
         Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueId(leagueDTO.getLeagueId());
         Optional<User> userOptional = userRepository.findUserById(leagueDTO.getUserId());
+
         Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(
                 leagueDTO.getLeagueId(),
                 leagueDTO.getUserId());
 
         if (leagueOptional.isEmpty() && userOptional.isPresent() && userByLeagueOptional.isEmpty()) {
+
             try {
 
                 /*
@@ -93,7 +95,7 @@ public class LeagueService {
 
                 userLeagues.put(_league.getLeagueId(), _league.getLeagueName());
                 userRepository.updateUserLeagues(userLeagues, savedUser.getId());
-
+                
                 /*
                 Save new league and user as admin to user_by_league DB
                  */
@@ -110,7 +112,7 @@ public class LeagueService {
             }
         } else {
             throw new CustomErrorException(HttpStatus.CONFLICT,
-                    "Either this league id does already exist or the user does not exist in the DB",
+                    "Either this league id does already exist or the user does not exist in the DB or the user is already in this league",
                     leagueDTO);
         }
     }
