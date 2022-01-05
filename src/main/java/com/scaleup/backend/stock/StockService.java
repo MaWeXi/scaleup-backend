@@ -19,9 +19,6 @@ public class StockService {
 
     public ResponseEntity<?> updateAllStocks(List<Stock> stocks) {
         try {
-            for (Stock stock:stocks) {
-                System.out.println(stock);
-            }
             stockRepository.saveAll(stocks);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
