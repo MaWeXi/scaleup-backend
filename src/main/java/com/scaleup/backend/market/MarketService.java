@@ -8,7 +8,6 @@ import com.scaleup.backend.stock.Stock;
 import com.scaleup.backend.stock.StockRepository;
 import com.scaleup.backend.userByLeague.UserByLeague;
 import com.scaleup.backend.userByLeague.UserByLeagueRepository;
-import com.scaleup.backend.userByLeague.UserByLeagueService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -101,7 +100,7 @@ public class MarketService {
             String userid = updateJoker.getUserid();
             String symbol = updateJoker.getSymbol();
             //check whether the user has jokers available
-            Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(leagueid, userid);
+            Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findByLeagueIdAndUserId(leagueid, userid);
             if (userByLeagueOptional.isEmpty()) {
                 throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User konnte in dieser Liga nicht gefunden werden");
             }

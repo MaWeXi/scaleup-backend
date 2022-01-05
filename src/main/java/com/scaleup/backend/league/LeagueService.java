@@ -67,7 +67,7 @@ public class LeagueService {
         Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueId(leagueDTO.getLeagueId());
         Optional<User> userOptional = userRepository.findUserById(leagueDTO.getUserId());
 
-        Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(
+        Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findByLeagueIdAndUserId(
                 leagueDTO.getLeagueId(),
                 leagueDTO.getUserId());
 

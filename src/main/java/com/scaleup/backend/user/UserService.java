@@ -67,7 +67,7 @@ public class UserService {
                 newLeague.getLeagueId(),
                 newLeague.getLeagueCode()
         );
-        Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(
+        Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findByLeagueIdAndUserId(
                 newLeague.getLeagueId(), userId);
 
         // Check if league and user are store in DB for given IDs

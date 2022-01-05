@@ -4,7 +4,6 @@ import com.scaleup.backend.exceptionHandling.CustomErrorException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.sql.Timestamp;
 import java.util.Optional;
 
 public class UserByLeagueService {
@@ -15,9 +14,9 @@ public class UserByLeagueService {
         this.userByLeagueRepository = userByLeagueRepository;
     }
 
-    public ResponseEntity<UserByLeague> findUserByLeagueByLeagueid(String league_id, String user_id) {
+    public ResponseEntity<UserByLeague> findUserByLeagueByLeagueId(String league_id, String user_id) {
         try {
-            Optional<UserByLeague> userByLeague = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(league_id, user_id);
+            Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(league_id, user_id);
             if (userByLeague.isEmpty()) {
                 throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User konnte in dieser Liga nicht gefunden werden");
             }
@@ -30,7 +29,7 @@ public class UserByLeagueService {
 
     public ResponseEntity<Integer> findNumberOfJokerAvailable(String league_id, String user_id) {
         try {
-            Optional<UserByLeague> userByLeague = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(league_id, user_id);
+            Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(league_id, user_id);
             if (userByLeague.isEmpty()) {
                 throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User konnte in dieser Liga nicht gefunden werden");
             }
