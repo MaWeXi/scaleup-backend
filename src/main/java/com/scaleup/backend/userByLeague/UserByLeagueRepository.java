@@ -4,10 +4,9 @@ import org.springframework.data.cassandra.repository.AllowFiltering;
 import org.springframework.data.cassandra.repository.CassandraRepository;
 import org.springframework.data.cassandra.repository.Query;
 
-import java.util.List;
 import java.util.Optional;
 
-public interface UserByLeagueRepository extends CassandraRepository<UserByLeague, String> {
+public interface UserByLeagueRepository extends CassandraRepository<UserByLeague, UserByLeagueKey> {
 
     @AllowFiltering
     Optional<UserByLeague> findAllByLeagueidEqualsAndUseridEquals(String league_id, String user_id);

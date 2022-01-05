@@ -5,6 +5,7 @@ import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 
 @Data
@@ -23,10 +24,10 @@ public class League {
     private String leagueCode;
 
     @Column("start_budget")
-    private Double startBudget;
+    private BigDecimal startBudget;
 
     @Column("transaction_costs")
-    private Double transactionCost;
+    private BigDecimal transactionCost;
 
     @Column("stock_amount")
     private Integer stockAmount;

@@ -5,6 +5,7 @@ import com.scaleup.backend.league.DTO.LeagueDTO;
 import com.scaleup.backend.user.User;
 import com.scaleup.backend.user.UserRepository;
 import com.scaleup.backend.userByLeague.UserByLeague;
+import com.scaleup.backend.userByLeague.UserByLeagueKey;
 import com.scaleup.backend.userByLeague.UserByLeagueRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -65,24 +66,43 @@ public class LeagueService {
     public ResponseEntity<League> createLeague(LeagueDTO leagueDTO) {
         Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueId(leagueDTO.getLeagueId());
         Optional<User> userOptional = userRepository.findUserById(leagueDTO.getUserId());
-        Optional<UserByLeague> userByLeague = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(leagueDTO.getLeagueId(), leagueDTO.getUserId());
 
-        if (leagueOptional.isEmpty() && userOptional.isPresent() && userByLeague.isEmpty()) {
+        Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(
+                leagueDTO.getLeagueId(),
+                leagueDTO.getUserId());
+
+        if (leagueOptional.isEmpty() && userOptional.isPresent() && userByLeagueOptional.isEmpty()) {
+
             try {
+
+                /*
+                Map leagueDTO to league and save in DB
+                 */
                 League league = modelMapper.map(leagueDTO, League.class);
                 League _league = leagueRepository.save(league);
 
+                /*
+                Get saved leagues from user in DB, add new league and save in DB
+                 */
                 User savedUser = userOptional.get();
                 LinkedHashMap<String, String> userLeagues = savedUser.getLeagues();
 
-                // If-clause is necessary as Java throws a NullPointerException when you try to put a new Key-Value
-                // into an empty LinkedHashMap from the DB
+                // Necessary as Java throws a NullPointerException when you try to put a new Key-Value into an empty
+                // LinkedHashMap from the DB
                 if (userLeagues == null) {
                     userLeagues = new LinkedHashMap<>();
                 }
+
                 userLeagues.put(_league.getLeagueId(), _league.getLeagueName());
                 userRepository.updateUserLeagues(userLeagues, savedUser.getId());
-                userByLeagueRepository.save(new UserByLeague(leagueDTO.getLeagueId(), BigDecimal.ZERO, leagueDTO.getUserId(), Boolean.TRUE, BigDecimal.valueOf(leagueDTO.getStartBudget()), Boolean.FALSE, Boolean.FALSE, Boolean.FALSE));
+                
+                /*
+                Save new league and user as admin to user_by_league DB
+                 */
+                UserByLeagueKey key = new UserByLeagueKey(leagueDTO.getLeagueId(), BigDecimal.ZERO);
+                UserByLeague userByLeague = new UserByLeague(key, savedUser.getUsername(), leagueDTO.getStartBudget(),
+                true, false, false, false);
+                userByLeagueRepository.save(userByLeague);
 
                 return new ResponseEntity<>(_league, HttpStatus.CREATED);
             } catch (Exception e) {
