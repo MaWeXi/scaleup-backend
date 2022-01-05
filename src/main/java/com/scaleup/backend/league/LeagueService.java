@@ -4,12 +4,16 @@ import com.scaleup.backend.exceptionHandling.CustomErrorException;
 import com.scaleup.backend.league.DTO.LeagueDTO;
 import com.scaleup.backend.user.User;
 import com.scaleup.backend.user.UserRepository;
+import com.scaleup.backend.userByLeague.UserByLeague;
+import com.scaleup.backend.userByLeague.UserByLeagueKey;
+import com.scaleup.backend.userByLeague.UserByLeagueRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
@@ -19,11 +23,13 @@ public class LeagueService {
 
     final LeagueRepository leagueRepository;
     final UserRepository userRepository;
+    final UserByLeagueRepository userByLeagueRepository;
     final ModelMapper modelMapper = new ModelMapper();
 
-    public LeagueService(LeagueRepository leagueRepository, UserRepository userRepository) {
+    public LeagueService(LeagueRepository leagueRepository, UserRepository userRepository, UserByLeagueRepository userByLeagueRepository) {
         this.leagueRepository = leagueRepository;
         this.userRepository = userRepository;
+        this.userByLeagueRepository = userByLeagueRepository;
     }
 
     public ResponseEntity<List<League>> getAllLeagues() {
@@ -63,19 +69,35 @@ public class LeagueService {
 
         if (leagueOptional.isEmpty() && userOptional.isPresent()) {
             try {
+
+                /*
+                Map leagueDTO to league and save in DB
+                 */
                 League league = modelMapper.map(leagueDTO, League.class);
                 League _league = leagueRepository.save(league);
 
+                /*
+                Get saved leagues from user in DB, add new league and save in DB
+                 */
                 User savedUser = userOptional.get();
                 LinkedHashMap<String, String> userLeagues = savedUser.getLeagues();
 
-                // If-clause is necessary as Java throws a NullPointerException when you try to put a new Key-Value
-                // into an empty LinkedHashMap from the DB
+                // Necessary as Java throws a NullPointerException when you try to put a new Key-Value into an empty
+                // LinkedHashMap from the DB
                 if (userLeagues == null) {
                     userLeagues = new LinkedHashMap<>();
                 }
+
                 userLeagues.put(_league.getLeagueId(), _league.getLeagueName());
                 userRepository.updateUserLeagues(userLeagues, savedUser.getId());
+
+                /*
+                Save new league and user as admin to user_by_league DB
+                 */
+                UserByLeagueKey key = new UserByLeagueKey(leagueDTO.getLeagueId(), new BigDecimal("0"));
+                UserByLeague userByLeague = new UserByLeague(key, savedUser.getUsername(), leagueDTO.getStartBudget(),
+                true, true, true, true);
+                userByLeagueRepository.save(userByLeague);
 
                 return new ResponseEntity<>(_league, HttpStatus.CREATED);
             } catch (Exception e) {

@@ -22,13 +22,19 @@ public class Stock {
     @Column("last_updated")
     private Timestamp lastUpdated;
 
-    @Column("price")
-    private BigDecimal price;
+    @Column("ask_price")
+    private BigDecimal askPrice;
+
+    @Column("bid_price")
+    private BigDecimal bidPrice;
+
+    @Column("current_price")
+    private BigDecimal currentPrice;
 
     @Column("day_open")
     private BigDecimal dayOpen;
 
-    @Column("last_day_close")
+    @Column("previous_close")
     private BigDecimal previousClose;
 
     @Column("day_high")
@@ -45,6 +51,7 @@ public class Stock {
 
     @Column("volume")
     private Float volume;
+    // BigInteger???
 
     @Column("stock_type")
     private String stockType;
