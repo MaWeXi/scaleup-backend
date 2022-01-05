@@ -112,44 +112,6 @@ public class UserService {
         }
     }
 
-//    @Transactional
-//    public ResponseEntity<User> updateUserLeague(String userId, String leagueCode) {
-//        Optional<User> userOptional = userRepository.findById(userId);
-//        Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueCode(leagueCode);
-//
-//        if (userOptional.isPresent() && leagueOptional.isPresent()) {
-//            try {
-//
-//                /*
-//                Check if given user is not already stored in league and store new league
-//                 */
-//                League league = leagueOptional.get();
-//
-//                // Check if user is already in given league
-//                if (userOptional.get().getLeagues().containsKey(league.getLeagueId())) {
-//                    throw new CustomErrorException(HttpStatus.CONFLICT,
-//                            "User is already in this league",
-//                            league);
-//                } else {
-//                    // Add new league to already stored leagues
-//                    LinkedHashMap<String, String> leagues = userOptional.get().getLeagues();
-//                    leagues.put(league.getLeagueId(), league.getLeagueName());
-//
-//                    userRepository.updateUserLeagues(leagues, userId);
-//                    return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
-//                }
-//            } catch (Exception e) {
-//
-//                // TODO: Implement logging of errors
-//                throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), leagueCode);
-//            }
-//        } else {
-//            throw new CustomErrorException(HttpStatus.NOT_FOUND,
-//                    "Either the user or the league with this id does not exist",
-//                    leagueCode);
-//        }
-//    }
-
     public ResponseEntity<User> saveUser(User user) {
         Optional<User> userOptional = userRepository.findUserByUsername(user.getUsername());
 

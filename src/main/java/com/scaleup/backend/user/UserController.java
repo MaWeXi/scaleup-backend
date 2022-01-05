@@ -37,11 +37,6 @@ public class UserController {
         return userService.updateUser(userId, addLeagueDTO);
     }
 
-//    @PutMapping("user/{id}")
-//    public ResponseEntity<User> updateUserLeague(@PathVariable("id") String userId, @RequestParam String leagueCode) {
-//        return userService.updateUserLeague(userId, leagueCode);
-//    }
-
     @DeleteMapping("/user/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable("id") String id) {
         return userService.deleteUser(id);
