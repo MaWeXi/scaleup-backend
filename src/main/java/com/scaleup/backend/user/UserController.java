@@ -29,12 +29,17 @@ public class UserController {
 
     @PostMapping("/user")
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        return userService.saveUser(user);
+        return userService.createUser(user);
+    }
+
+    @PutMapping("/user/{id}/")
+    public ResponseEntity<User> updateUser(@PathVariable("id") String userId, @RequestBody User user) {
+        return userService.updateUser(userId, user);
     }
 
     @PutMapping("/user/join_league/{id}/")
-    public ResponseEntity<User> updateUser(@PathVariable("id") String userId, @RequestBody AddLeagueDTO addLeagueDTO) {
-        return userService.updateUser(userId, addLeagueDTO);
+    public ResponseEntity<User> updateLeagueOfUser(@PathVariable("id") String userId, @RequestBody AddLeagueDTO addLeagueDTO) {
+        return userService.addUserToLeague(userId, addLeagueDTO);
     }
 
     @DeleteMapping("/user/{id}")
