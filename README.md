@@ -16,6 +16,7 @@ _Always look at the message in the JSON response for further information if you 
   <tr>
    <td> HTTP </td> <td> URL </td> <td> Body </td>
   </tr>
+
   <tr>
   <td> POST </td>
   <td> http://localhost:8080/api/v1/user/ </td>
@@ -30,7 +31,8 @@ _Always look at the message in the JSON response for further information if you 
   ```
 
   </td>
-  <tr>
+  </tr>
+
   <tr>
   <td> GET </td>
   <td> http://localhost:8080/api/v1/user/all </td>
@@ -40,6 +42,7 @@ _Always look at the message in the JSON response for further information if you 
 
   </td>
   </tr>
+
   <tr>
   <td> GET </td>
   <td> http://localhost:8080/api/v1/user/all/{id} </td>
@@ -49,6 +52,23 @@ _Always look at the message in the JSON response for further information if you 
 
   </td>
   </tr>
+
+  <tr>
+  <td> PUT </td>
+  <td> http://localhost:8080/api/v1/user/{id} </td>
+  <td>
+
+   ```json
+  {
+  "id": "15787aab-9ec8-48c8-9535-ba1ff585b16a",
+  "username": "horst",
+  "leagues": {}
+}
+   ```
+
+  </td>
+  <tr>
+
   <tr>
   <td> PUT </td>
   <td> http://localhost:8080/api/v1/user/join_league/{id} </td>
@@ -71,6 +91,7 @@ _Always look at the message in the JSON response for further information if you 
   <tr>
   <td> Status </td> <td> Response </td>
   </tr>
+
   <tr>
   <td> 200 </td>
   <td>
@@ -85,6 +106,7 @@ _Always look at the message in the JSON response for further information if you 
 
   </td>
   </tr>
+
   <tr>
   <td> 204 </td>
   <td>
@@ -93,6 +115,7 @@ No users saved in DB
 
   </td>
   </tr>
+
   <tr>
   <td> 404 </td>
   <td>
@@ -101,6 +124,7 @@ User could not be found under this id or username
 
   </td>
   </tr>
+
   <tr>
   <td> 409 </td>
   <td>
@@ -109,6 +133,7 @@ User with this username already saved in DB
 
   </td>
   </tr>
+
   <tr>
   <td> 400 </td>
   <td>
@@ -117,14 +142,14 @@ User with this username already saved in DB
 
   </td>
   </tr>
+
 </table>
 
 ___
 
 ## Leagues
 
-API Requests and responses for the leagues controller\
-**Not implemented yet!**
+API Requests and responses for the leagues controller
 
 ### API Requests
 
@@ -132,6 +157,7 @@ API Requests and responses for the leagues controller\
   <tr>
    <td> HTTP </td> <td> URL </td> <td> Body </td>
   </tr>
+
   <tr>
   <td> POST </td>
   <td> http://localhost:8080/api/v1/league/ </td>
@@ -156,7 +182,8 @@ API Requests and responses for the leagues controller\
   ```
 
   </td>
-  <tr>
+  </tr>
+
   <tr>
   <td> GET </td>
   <td> http://localhost:8080/api/v1/league/{id} </td>
@@ -166,6 +193,7 @@ API Requests and responses for the leagues controller\
 
   </td>
   </tr>
+
   <tr>
   <td> GET </td>
   <td> http://localhost:8080/api/v1/league/all </td>
@@ -175,6 +203,7 @@ API Requests and responses for the leagues controller\
 
   </td>
   </tr>
+
   <tr>
   <td> PUT </td>
   <td> tbc. </td>
@@ -183,7 +212,8 @@ API Requests and responses for the leagues controller\
   `-`
 
   </td>
-  <tr>
+  </tr>
+
 </table>
 
 ### API Response
@@ -192,6 +222,7 @@ API Requests and responses for the leagues controller\
   <tr>
   <td> Status </td> <td> Response </td>
   </tr>
+
   <tr>
   <td> 200 </td>
   <td>
@@ -200,6 +231,7 @@ API Requests and responses for the leagues controller\
 
   </td>
   </tr>
+
   <tr>
   <td> 204 </td>
   <td>
@@ -208,6 +240,7 @@ No leagues saved in DB
 
   </td>
   </tr>
+
   <tr>
   <td> 404 </td>
   <td>
@@ -216,6 +249,7 @@ League could not be found under this id
 
   </td>
   </tr>
+
   <tr>
   <td> 409 </td>
   <td>
@@ -224,6 +258,7 @@ Either this league id does already exist or the user does not exist in the DB
 
   </td>
   </tr>
+
   <tr>
   <td> 400 </td>
   <td>
@@ -231,7 +266,8 @@ Either this league id does already exist or the user does not exist in the DB
 **Bad request**
 
   </td>
-  <tr>
+  </tr>
+
 </table>
 
 
@@ -247,6 +283,7 @@ API Requests and responses for the stock controller\
   <tr>
    <td> HTTP </td> <td> URL </td> <td> Body </td>
   </tr>
+
   <tr>
   <td> GET </td>
   <td> http://localhost:8080/api/v1/stock/{symbol} </td>
@@ -256,6 +293,7 @@ API Requests and responses for the stock controller\
 
   </td>
   </tr>
+
   <tr>
   <td> GET </td>
   <td> tbc. </td>
@@ -273,6 +311,7 @@ API Requests and responses for the stock controller\
   <tr>
   <td> Status </td> <td> Response </td>
   </tr>
+
   <tr>
   <td> 200 </td>
   <td>
@@ -296,6 +335,7 @@ API Requests and responses for the stock controller\
 
   </td>
   </tr>
+
   <tr>
   <td> 404 </td>
   <td>
@@ -304,6 +344,7 @@ Stock with this symbol could not be found in the DB
 
   </td>
   </tr>
+
   <tr>
   <td> 400 </td>
   <td>
@@ -312,13 +353,14 @@ Stock with this symbol could not be found in the DB
 
   </td>
   </tr>
+
 </table>
 
 ___
 
 ## Markets
 
-API Requests and responses for the market controller\
+API Requests and responses for the market controller
 
 ### API Requests
 
@@ -326,6 +368,7 @@ API Requests and responses for the market controller\
   <tr>
    <td> HTTP </td> <td> URL </td> <td> Body </td>
   </tr>
+
   <tr>
   <td> GET </td>
   <td> http://localhost:8080/api/v1/market/{leagueid} </td>
@@ -335,19 +378,22 @@ API Requests and responses for the market controller\
 
   </td>
   </tr>
+
   <tr>
   <td> Put </td>
   <td> http://localhost:8080/api/v1/market/joker/update/{leagueid} </td>
-  <td> 
-    ```json
-    {
-    "leagueid": "1d701622-4e4c-1111-1111-testleague36",
-    "symbol": "AINN.DE",
-    "current_value": null,
-    "date_entered": "2021-12-26T19:30:24.507+00:00",
-    "date_left": "2022-01-09T19:30:24.507+00:00",
-    "joker_active": true
-    }
+  <td>
+
+```json
+{
+"leagueid": "1d701622-4e4c-1111-1111-testleague36",
+"symbol": "AINN.DE",
+"current_value": null,
+"date_entered": "2021-12-26T19:30:24.507+00:00",
+"date_left": "2022-01-09T19:30:24.507+00:00",
+"joker_active": true
+}
+```
 
   </td>
   </tr>
@@ -360,6 +406,7 @@ API Requests and responses for the market controller\
   <tr>
   <td> Status </td> <td> Response </td>
   </tr>
+
   <tr>
   <td> 200 </td>
   <td>
@@ -383,6 +430,7 @@ API Requests and responses for the market controller\
 
   </td>
   </tr>
+
   <tr>
   <td> 404 </td>
   <td>
@@ -391,6 +439,7 @@ Stock with this symbol could not be found in the DB
 
   </td>
   </tr>
+
   <tr>
   <td> 400 </td>
   <td>
@@ -399,4 +448,5 @@ Stock with this symbol could not be found in the DB
 
   </td>
   </tr>
+
 </table>
