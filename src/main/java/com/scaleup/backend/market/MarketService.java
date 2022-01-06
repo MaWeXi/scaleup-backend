@@ -78,7 +78,7 @@ public class MarketService {
                     marketJoker.add(markets.get(i));
                 }
             }
-            marketJoker = updateCurrentPrices(marketJoker).getBody();
+            //not a Problem currently, but this method does not look for updated values dor current_value
             return new ResponseEntity<>(marketJoker, HttpStatus.OK);
         }catch (Exception e){
             // TODO: Implement logging of errors
