@@ -5,7 +5,6 @@ import com.scaleup.backend.league.DTO.AddLeagueDTO;
 import com.scaleup.backend.league.League;
 import com.scaleup.backend.league.LeagueRepository;
 import com.scaleup.backend.userByLeague.UserByLeague;
-import com.scaleup.backend.userByLeague.UserByLeagueKey;
 import com.scaleup.backend.userByLeague.UserByLeagueRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -123,9 +122,16 @@ public class UserService {
                     /*
                     Save user to user_by_league DB
                      */
-                    UserByLeagueKey key = new UserByLeagueKey(league.getLeagueId(), BigDecimal.ZERO);
-                    UserByLeague userByLeague = new UserByLeague(key, user.getUsername(), league.getStartBudget(),
-                            true, false, false, false);
+                    UserByLeague userByLeague = new UserByLeague(
+                            league.getLeagueId(),
+                            user.getId(),
+                            user.getUsername(),
+                            BigDecimal.ZERO,
+                            league.getStartBudget(),
+                            true,
+                            false,
+                            false,
+                            false);
                     userByLeagueRepository.save(userByLeague);
 
                     return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);

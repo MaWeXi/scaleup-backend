@@ -55,7 +55,7 @@ public class MarketService {
         try {
             for( int i=0; i<markets.size(); i++ ){
                 Market market = marketRepository.findMarketByLeagueidAndSymbolEquals(markets.get(i).getLeagueid(), markets.get(i).getSymbol()).get();
-                market.setCurrent_value(stockRepository.findStockBySymbol(markets.get(i).getSymbol()).get().getPrice());
+                market.setCurrent_value(stockRepository.findStockBySymbol(markets.get(i).getSymbol()).get().getCurrentPrice());
                 marketRepository.save(market);
             }
             List<Market> marketUpdated = marketRepository.findMarketByLeagueid(markets.get(0).getLeagueid());
@@ -185,7 +185,7 @@ public class MarketService {
                     List<Stock> stocksSector1= pickNRandom(stockRepository.findStocksBySectorEquals(key), (int) amountStockPerSector);
                     // Add symbols to market
                     for ( int i=0; i<amountStockPerSector; i++){
-                        addSymbolToMarket(leagueid, stocksSector1.get(i).getSymbol(), stocksSector1.get(i).getPrice(), tsNow, ts14);
+                        addSymbolToMarket(leagueid, stocksSector1.get(i).getSymbol(), stocksSector1.get(i).getCurrentPrice(), tsNow, ts14);
                         arraySymbols.add(stocksSector1.get(i).getSymbol());
                     }
                 }
@@ -208,7 +208,7 @@ public class MarketService {
                     while (!stockNotYetIncluded) {
                         List<Stock> stocksSector2 = pickNRandom(randomSectorStockList, 1);
                         if (!arraySymbols.contains(stocksSector2.get(0).getSymbol())) {
-                            addSymbolToMarket(leagueid, stocksSector2.get(i).getSymbol(), stocksSector2.get(i).getPrice(), tsNow, ts14);
+                            addSymbolToMarket(leagueid, stocksSector2.get(i).getSymbol(), stocksSector2.get(i).getCurrentPrice(), tsNow, ts14);
                             stockNotYetIncluded=Boolean.TRUE;
                         }
                     }
