@@ -6,7 +6,7 @@ import org.springframework.data.cassandra.repository.Query;
 
 import java.util.Optional;
 
-public interface UserByLeagueRepository extends CassandraRepository<UserByLeague, UserByLeagueKey> {
+public interface UserByLeagueRepository extends CassandraRepository<UserByLeague, String> {
 
     @AllowFiltering
     Optional<UserByLeague> findByLeagueIdAndUserId(String leagueId, String userId);

@@ -5,7 +5,6 @@ import com.scaleup.backend.league.DTO.AddLeagueDTO;
 import com.scaleup.backend.league.League;
 import com.scaleup.backend.league.LeagueRepository;
 import com.scaleup.backend.userByLeague.UserByLeague;
-import com.scaleup.backend.userByLeague.UserByLeagueKey;
 import com.scaleup.backend.userByLeague.UserByLeagueRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -60,15 +59,43 @@ public class UserService {
         }
     }
 
+    public ResponseEntity<User> createUser(User user) {
+        Optional<User> userOptional = userRepository.findUserByUsername(user.getUsername());
+
+        if (userOptional.isEmpty()) {
+            User _user = saveUser(user);
+            return new ResponseEntity<>(_user, HttpStatus.CREATED);
+        } else {
+            throw new CustomErrorException(HttpStatus.CONFLICT,
+                    "User with this username already exists",
+                    user.getUsername());
+        }
+    }
+
     @Transactional
-    public ResponseEntity<User> updateUser(String userId, AddLeagueDTO newLeague) {
+    public ResponseEntity<User> updateUser(String userId, User user) {
         Optional<User> userOptional = userRepository.findById(userId);
-        Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueIdEqualsAndLeagueCodeEquals(
-                newLeague.getLeagueId(),
-                newLeague.getLeagueCode()
+
+        if (userOptional.isPresent()) {
+            User _user = saveUser(user);
+
+            return new ResponseEntity<>(_user, HttpStatus.OK);
+        } else {
+            throw new CustomErrorException(HttpStatus.CONFLICT,
+                    "User with this username already exists",
+                    user.getUsername());
+        }
+    }
+
+    @Transactional
+    public ResponseEntity<User> addUserToLeague(String userId, AddLeagueDTO addLeague) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueIdAndLeagueCode(
+                addLeague.getLeagueId(),
+                addLeague.getLeagueCode()
         );
         Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findByLeagueIdAndUserId(
-                newLeague.getLeagueId(), userId);
+                addLeague.getLeagueId(), userId);
 
         // Check if league and user are store in DB for given IDs
         if (userOptional.isPresent() && leagueOptional.isPresent() && userByLeagueOptional.isEmpty()) {
@@ -81,23 +108,30 @@ public class UserService {
                 User user = userOptional.get();
 
                 // Check if user is already in given league
-                if (user.getLeagues().containsKey(newLeague.getLeagueId())) {
+                if (user.getLeagues().containsKey(addLeague.getLeagueId())) {
                     throw new CustomErrorException(HttpStatus.CONFLICT,
                             "User is already in this league",
-                            newLeague);
+                            addLeague);
                 } else {
                     // Add new league to already stored leagues
                     LinkedHashMap<String, String> leagues = user.getLeagues();
-                    leagues.put(newLeague.getLeagueId(), league.getLeagueName());
+                    leagues.put(addLeague.getLeagueId(), league.getLeagueName());
 
                     userRepository.updateUserLeagues(leagues, userId);
 
                     /*
                     Save user to user_by_league DB
                      */
-                    UserByLeagueKey key = new UserByLeagueKey(league.getLeagueId(), BigDecimal.ZERO);
-                    UserByLeague userByLeague = new UserByLeague(key, user.getUsername(), league.getStartBudget(),
-                            true, false, false, false);
+                    UserByLeague userByLeague = new UserByLeague(
+                            league.getLeagueId(),
+                            user.getId(),
+                            user.getUsername(),
+                            BigDecimal.ZERO,
+                            league.getStartBudget(),
+                            true,
+                            false,
+                            false,
+                            false);
                     userByLeagueRepository.save(userByLeague);
 
                     return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
@@ -105,31 +139,12 @@ public class UserService {
             } catch (Exception e) {
 
                 // TODO: Implement logging of errors
-                throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), newLeague);
+                throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), addLeague);
             }
         } else {
             throw new CustomErrorException(HttpStatus.NOT_FOUND,
                     "Either the user or the league with this id does not exist",
-                    newLeague);
-        }
-    }
-
-    public ResponseEntity<User> saveUser(User user) {
-        Optional<User> userOptional = userRepository.findUserByUsername(user.getUsername());
-
-        if (userOptional.isEmpty()) {
-            try {
-                User _user = userRepository.save(user);
-                return new ResponseEntity<>(_user, HttpStatus.CREATED);
-            } catch (Exception e) {
-
-                // TODO: Implement logging of errors
-                throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), user);
-            }
-        } else {
-            throw new CustomErrorException(HttpStatus.CONFLICT,
-                    "User with this username already exists",
-                    user.getUsername());
+                    addLeague);
         }
     }
 
@@ -147,6 +162,20 @@ public class UserService {
             }
         } else {
             throw new CustomErrorException(HttpStatus.NOT_FOUND, "No user found under this id", id);
+        }
+    }
+
+    /*
+    Helper Methods
+     */
+
+    public User saveUser(User user) {
+        try {
+            return userRepository.save(user);
+        } catch (Exception e) {
+
+            // TODO: Implement logging of errors
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), user);
         }
     }
 }
