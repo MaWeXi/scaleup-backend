@@ -23,7 +23,11 @@ public class UserService {
     final LeagueRepository leagueRepository;
     final UserByLeagueRepository userByLeagueRepository;
 
-    public UserService(UserRepository userRepository, LeagueRepository leagueRepository, UserByLeagueRepository userByLeagueRepository) {
+    public UserService(
+            UserRepository userRepository,
+            LeagueRepository leagueRepository,
+            UserByLeagueRepository userByLeagueRepository
+    ) {
         this.userRepository = userRepository;
         this.leagueRepository = leagueRepository;
         this.userByLeagueRepository = userByLeagueRepository;
@@ -119,19 +123,18 @@ public class UserService {
 
                     userRepository.updateUserLeagues(leagues, userId);
 
-                    /*
-                    Save user to user_by_league DB
-                     */
+                    // Save user to user_by_league DB
                     UserByLeague userByLeague = new UserByLeague(
                             league.getLeagueId(),
                             user.getId(),
                             user.getUsername(),
                             BigDecimal.ZERO,
                             league.getStartBudget(),
-                            true,
                             false,
                             false,
-                            false);
+                            false,
+                            false
+                    );
                     userByLeagueRepository.save(userByLeague);
 
                     return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
