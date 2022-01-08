@@ -129,6 +129,7 @@ public class UserService {
                             user.getId(),
                             user.getUsername(),
                             BigDecimal.ZERO,
+                            league.getStartBudget(),
                             false,
                             false,
                             false,
