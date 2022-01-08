@@ -128,7 +128,7 @@ public class UserService {
                             user.getUsername(),
                             BigDecimal.ZERO,
                             league.getStartBudget(),
-                            true,
+                            false,
                             false,
                             false,
                             false);
