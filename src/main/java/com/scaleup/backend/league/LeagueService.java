@@ -2,6 +2,7 @@ package com.scaleup.backend.league;
 
 import com.scaleup.backend.exceptionHandling.CustomErrorException;
 import com.scaleup.backend.league.DTO.LeagueDTO;
+import com.scaleup.backend.user.DTO.LeaderboardUserDTO;
 import com.scaleup.backend.user.User;
 import com.scaleup.backend.user.UserRepository;
 import com.scaleup.backend.userByLeague.UserByLeague;
@@ -13,9 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class LeagueService {
@@ -25,7 +24,11 @@ public class LeagueService {
     final UserByLeagueRepository userByLeagueRepository;
     final ModelMapper modelMapper = new ModelMapper();
 
-    public LeagueService(LeagueRepository leagueRepository, UserRepository userRepository, UserByLeagueRepository userByLeagueRepository) {
+    public LeagueService(
+            LeagueRepository leagueRepository,
+            UserRepository userRepository,
+            UserByLeagueRepository userByLeagueRepository
+    ) {
         this.leagueRepository = leagueRepository;
         this.userRepository = userRepository;
         this.userByLeagueRepository = userByLeagueRepository;
@@ -94,10 +97,8 @@ public class LeagueService {
 
                 userLeagues.put(_league.getLeagueId(), _league.getLeagueName());
                 userRepository.updateUserLeagues(userLeagues, savedUser.getId());
-                
-                /*
-                Save new league and user as admin to user_by_league DB
-                 */
+
+                // Save new league and user as admin to user_by_league DB
                 UserByLeague userByLeague = new UserByLeague(
                         leagueDTO.getLeagueId(),
                         savedUser.getId(),
@@ -107,7 +108,8 @@ public class LeagueService {
                         true,
                         false,
                         false,
-                        false);
+                        false
+                );
                 userByLeagueRepository.save(userByLeague);
 
                 return new ResponseEntity<>(_league, HttpStatus.CREATED);
@@ -120,6 +122,35 @@ public class LeagueService {
             throw new CustomErrorException(HttpStatus.CONFLICT,
                     "Either this league id does already exist or the user does not exist in the DB or the user is already in this league",
                     leagueDTO);
+        }
+    }
+
+    public ResponseEntity<List<LeaderboardUserDTO>> getLeaderboardByLeagueId(String leagueId) {
+        Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueId(leagueId);
+
+        if (leagueOptional.isPresent()) {
+            try {
+                Collection<LeaderboardUserDTO> userCollection = userByLeagueRepository.findByLeagueId(
+                        leagueId,
+                        LeaderboardUserDTO.class
+                );
+
+                if (userCollection.isEmpty()) {
+                    throw new CustomErrorException(HttpStatus.NO_CONTENT, "No leagues in DB");
+                } else {
+                    List<LeaderboardUserDTO> userList;
+                    if (userCollection instanceof List)
+                        userList = (List<LeaderboardUserDTO>) userCollection;
+                    else
+                        userList = new ArrayList<>(userCollection);
+
+                    return new ResponseEntity<>(userList, HttpStatus.OK);
+                }
+            } catch (Exception e) {
+                throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
+            }
+        } else {
+            throw new CustomErrorException(HttpStatus.NOT_FOUND, "League could not be found under this id", leagueId);
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.scaleup.backend.league;
 
 import com.scaleup.backend.league.DTO.LeagueDTO;
+import com.scaleup.backend.user.DTO.LeaderboardUserDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,8 +23,13 @@ public class LeagueController {
     }
 
     @GetMapping("/league/{id}")
-    public ResponseEntity<League> getLeagueById(@PathVariable("id") String leagueId)  {
+    public ResponseEntity<League> getLeagueById(@PathVariable("id") String leagueId) {
         return leagueService.getLeagueById(leagueId);
+    }
+
+    @GetMapping("/league/leaderboard/{id}")
+    public ResponseEntity<List<LeaderboardUserDTO>> getLeaderboardByLeagueId(@PathVariable("id") String leagueId) {
+        return leagueService.getLeaderboardByLeagueId(leagueId);
     }
 
     @PostMapping("/league")
