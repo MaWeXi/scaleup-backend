@@ -32,19 +32,24 @@ public class MarketService {
 
     public ResponseEntity<List<Market>> findMarketByLeague(String league) {
         try {
-            List<Market> markets = marketRepository.findMarketByLeagueid(league);
-            if (markets.isEmpty()) {
-                System.out.println("markt ist leer -> marketrefresh");
-                marketRefresh(league);
-                markets = marketRepository.findMarketByLeagueid(league);
-            } else if (markets.iterator().next().getDate_left().before(new Timestamp(System.currentTimeMillis()))){
-                System.out.println("markt hat veraltete Einträge -> marketrefresh");
-                marketRefresh(league);
-                markets = marketRepository.findMarketByLeagueid(league);
+            Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueId(league);
+            if (leagueOptional.isPresent()){
+                List<Market> markets = marketRepository.findMarketByLeagueid(league);
+                if (markets.isEmpty()) {
+                    System.out.println("markt ist leer -> marketrefresh");
+                    marketRefresh(league);
+                    markets = marketRepository.findMarketByLeagueid(league);
+                } else if (markets.iterator().next().getDate_left().before(new Timestamp(System.currentTimeMillis()))){
+                    System.out.println("markt hat veraltete Einträge -> marketrefresh");
+                    marketRefresh(league);
+                    markets = marketRepository.findMarketByLeagueid(league);
+                } else {
+                    markets = updateCurrentPrices(markets).getBody();
+                }
+                return new ResponseEntity<>(markets, HttpStatus.OK);
             } else {
-                markets = updateCurrentPrices(markets).getBody();
+                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Es konnte keine Liga mit dieser leagueId gefunden werden");
             }
-            return new ResponseEntity<>(markets, HttpStatus.OK);
         }catch (Exception e){
             // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -161,7 +166,10 @@ public class MarketService {
                 double amountStockRandom = amountStocksInLeague-amountStockPerSector*keys.size();
 
                 // set timestamps ------
-                Timestamp tsNow = markets.iterator().next().getDate_left();
+                Timestamp tsNow = new Timestamp(System.currentTimeMillis());
+                if (!markets.isEmpty()){
+                    tsNow = markets.iterator().next().getDate_left();
+                }
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(tsNow);
                 cal.add(Calendar.DAY_OF_WEEK, 14);

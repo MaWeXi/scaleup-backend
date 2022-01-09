@@ -286,6 +286,9 @@ ___
 ## Stocks
 
 API Requests and responses for the stock controller\
+askPrice returns current askPrice and its development in percent to the value when the day started\
+bidPrice returns current bidPrice and its development in percent to the value when the day started\
+
 
 ### API Requests
 
@@ -304,6 +307,25 @@ API Requests and responses for the stock controller\
   </td>
   </tr>
 
+<tr>
+  <td> GET </td>
+  <td> http://localhost:8080/api/v1/stock/askPrice/{Symbol} </td>
+  <td>
+
+`-`
+
+  </td>
+  </tr>
+
+<tr>
+  <td> GET </td>
+  <td> http://localhost:8080/api/v1/stock/bidPrice/{symbol} </td>
+  <td>
+
+`-`
+
+  </td>
+  </tr>
   <tr>
   <td> GET </td>
   <td> tbc. </td>
@@ -370,7 +392,9 @@ ___
 
 ## Markets
 
-API Requests and responses for the market controller
+API Requests and responses for the market controller\
+market returns complete market for league (here we need to add information that you want to show)\
+joker/update sets joker for stock in market
 
 ### API Requests
 
@@ -460,3 +484,206 @@ Stock with this symbol could not be found in the DB
   </tr>
 
 </table>
+
+
+___
+
+## StocksByUser
+
+API Requests and responses for the stocksByUser controller\
+Posts to buy and sell stock
+
+
+### API Requests
+
+<table>
+  <tr>
+   <td> HTTP </td> <td> URL </td> <td> Body </td>
+  </tr>
+
+  <tr>
+  <td> Post </td>
+  <td> http://localhost:8080/api/v1/stockByUser/BuyStock </td>
+  <td>
+
+```json
+{
+"userid": "15787aab-9ec8-1111-1111-testuserb16a",
+"leagueid": "1d701622-4e4c-1111-1111-testleague69",
+"symbol": "ABEA.DE",
+"bidPrice": "1",
+"amount": "3"
+}
+```
+  </td>
+  </tr>
+
+  <tr>
+  <td> Post </td>
+  <td> http://localhost:8080/api/v1/stockByUser/SellStock </td>
+  <td>
+
+```json
+{
+  "userid": "15787aab-9ec8-1111-1111-testuserb16a",
+  "leagueid": "1d701622-4e4c-1111-1111-testleague69",
+  "symbol": "ABEA.DE",
+  "bidPrice": "1",
+  "amount": "3"
+}
+```
+
+  </td>
+  </tr>
+
+</table>
+
+### API Response
+
+<table>
+  <tr>
+  <td> Status </td> <td> Response </td>
+  </tr>
+
+  <tr>
+  <td> 200 </td>
+  <td>
+
+```json
+{
+    "symbol": "BTC-EUR",
+    "lastUpdated": "2021-12-06T19:05:29.000+00:00",
+    "price": 43411.125,
+    "dayOpen": 43632.46,
+    "previousClose": 43632.46,
+    "dayHigh": 43644.844,
+    "dayLow": 41835.867,
+    "fiftyTwoHigh": 59496.15,
+    "fiftyTwoLow": 14539.374,
+    "volume": 3.15467428E10,
+    "stockType": "CRYPTOCURRENCY",
+    "sector": "Blockchain"
+}
+```
+
+  </td>
+  </tr>
+
+  <tr>
+  <td> 404 </td>
+  <td>
+
+Stock with this symbol could not be found in the DB
+
+  </td>
+  </tr>
+
+  <tr>
+  <td> 400 </td>
+  <td>
+
+**Bad Request**
+
+  </td>
+  </tr>
+
+</table>
+
+___
+
+## UserByLeagues
+
+API Requests and responses for the userByLeagues controller\
+get current depotvalue\
+get full depot request
+
+
+### API Requests
+
+<table>
+  <tr>
+   <td> HTTP </td> <td> URL </td> <td> Body </td>
+  </tr>
+
+  <tr>
+  <td> Get </td>
+  <td> http://localhost:8080/api/v1/valueDepot </td>
+  <td>
+
+```json
+{
+  "leagueid": "1d701622-4e4c-1111-1111-testleague69",
+  "userid": "15787aab-9ec8-1111-1111-testuserb16a"
+}
+```
+  </td>
+  </tr>
+
+  <tr>
+  <td> Get </td>
+  <td> http://localhost:8080/api/v1/Depot </td>
+  <td>
+
+```json
+{
+  "leagueid": "1d701622-4e4c-1111-1111-testleague69",
+  "userid": "15787aab-9ec8-1111-1111-testuserb16a"
+}
+```
+
+  </td>
+  </tr>
+
+</table>
+
+### API Response
+
+<table>
+  <tr>
+  <td> Status </td> <td> Response </td>
+  </tr>
+
+  <tr>
+  <td> 200 </td>
+  <td>
+
+```json
+{
+    "symbol": "BTC-EUR",
+    "lastUpdated": "2021-12-06T19:05:29.000+00:00",
+    "price": 43411.125,
+    "dayOpen": 43632.46,
+    "previousClose": 43632.46,
+    "dayHigh": 43644.844,
+    "dayLow": 41835.867,
+    "fiftyTwoHigh": 59496.15,
+    "fiftyTwoLow": 14539.374,
+    "volume": 3.15467428E10,
+    "stockType": "CRYPTOCURRENCY",
+    "sector": "Blockchain"
+}
+```
+
+  </td>
+  </tr>
+
+  <tr>
+  <td> 404 </td>
+  <td>
+
+Stock with this symbol could not be found in the DB
+
+  </td>
+  </tr>
+
+  <tr>
+  <td> 400 </td>
+  <td>
+
+**Bad Request**
+
+  </td>
+  </tr>
+
+</table>
+

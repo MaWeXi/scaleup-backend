@@ -11,11 +11,13 @@ import com.scaleup.backend.userByLeague.UserByLeague;
 import com.scaleup.backend.userByLeague.UserByLeagueRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Optional;
 
+@Service
 public class StockByUserService {
 
     final StockByUserRepository stockByUserRepository;
@@ -39,7 +41,7 @@ public class StockByUserService {
         try {
             Optional<StockByUser> stockByUser = stockByUserRepository.findAllByLeagueIdEqualsAndUserIdEqualsAndSymbolEquals(leagueid, userid, symbol);
             Optional<Stock> stock = stockRepository.findStockBySymbol(symbol);
-            Optional<UserByLeague> userByLeague = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(leagueid, userid);
+            Optional<UserByLeague> userByLeague = userByLeagueRepository.findAllByLeagueIdEqualsAndUserIdEquals(leagueid, userid);
             StockByUser stockByUserReturn = new StockByUser();
 
             //check whether user and stock exist and if user has enough freeBudget to buy the amount of stock
@@ -77,6 +79,7 @@ public class StockByUserService {
                 transaction.setSingleStockValue(price);
 
                 //reduce freeBudget
+                // TODO: change Depotwert
                 UserByLeague userByLeagueUpdateBudget = userByLeague.get();
                 BigDecimal budget = userByLeagueUpdateBudget.getFreeBudget();
                 budget = budget.subtract(BigDecimal.valueOf(amount).multiply(price));
@@ -101,13 +104,13 @@ public class StockByUserService {
         try {
             Optional<StockByUser> stockByUser = stockByUserRepository.findAllByLeagueIdEqualsAndUserIdEqualsAndSymbolEquals(leagueid, userid, symbol);
             Optional<Stock> stock = stockRepository.findStockBySymbol(symbol);
-            Optional<UserByLeague> userByLeague = userByLeagueRepository.findAllByLeagueidEqualsAndUseridEquals(leagueid, userid);
+            Optional<UserByLeague> userByLeague = userByLeagueRepository.findAllByLeagueIdEqualsAndUserIdEquals(leagueid, userid);
             StockByUser stockByUserReturn = new StockByUser();
 
             //check whether user and stock exist
             if (stock.isPresent() && userByLeague.isPresent()){
                 BigDecimal price = stock.get().getCurrentPrice();
-                Boolean enoughStocks = stockByUser.get().getAmount()>stockSell.getAmount();
+                Boolean enoughStocks = stockByUser.get().getAmount()>=stockSell.getAmount();
 
                 //add entity in stocksByUser
                 //check whether Stock is in depot of user and if the user has enough stocks
@@ -143,6 +146,7 @@ public class StockByUserService {
                 transaction.setSingleStockValue(price);
 
                 //add profit to freeBudget
+                // TODO: change Depotwert
                 UserByLeague userByLeagueUpdateBudget = userByLeague.get();
                 BigDecimal budget = userByLeagueUpdateBudget.getFreeBudget();
                 budget = budget.add(BigDecimal.valueOf(amount).multiply(price));

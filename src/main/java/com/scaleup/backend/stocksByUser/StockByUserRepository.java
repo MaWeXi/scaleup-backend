@@ -16,7 +16,7 @@ import java.util.UUID;
 public interface StockByUserRepository extends CassandraRepository <StockByUser, String>{
 
     @AllowFiltering
-    List<StockByUser> findAllByUseridEquals(String userid);
+    List<StockByUser> findAllByUserIdEquals(String userid);
 
     @AllowFiltering
     List<StockByUser> findAllByLeagueIdEqualsAndUserIdEquals(String leagueid, String userid);

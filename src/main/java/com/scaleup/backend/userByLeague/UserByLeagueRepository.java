@@ -19,5 +19,5 @@ public interface UserByLeagueRepository extends CassandraRepository<UserByLeague
     void updateJoker(String jokerNumber, String leagueId, String userId);
 
     @AllowFiltering
-    Optional<UserByLeague> findAllByLeagueidEqualsAndUseridEquals(String leagueid, String userid);
+    Optional<UserByLeague> findAllByLeagueIdEqualsAndUserIdEquals(String leagueid, String userid);
 }
