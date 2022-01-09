@@ -71,7 +71,7 @@ _Always look at the message in the JSON response for further information if you 
 
   <tr>
   <td> PUT </td>
-  <td> http://localhost:8080/api/v1/user/join_league/{id} </td>
+  <td> http://localhost:8080/api/v1/user/join-league/{id} </td>
   <td>
 
   ```json
@@ -82,7 +82,7 @@ _Always look at the message in the JSON response for further information if you 
   ```
 
   </td>
-  <tr>
+  </tr>
 </table>
 
 ### API Response
@@ -200,6 +200,16 @@ API Requests and responses for the leagues controller
   <td>
 
   `-`
+
+  </td>
+  </tr>
+
+<tr>
+  <td> GET </td>
+  <td> http://localhost:8080/api/v1/league/leaderboard/{id} </td>
+  <td>
+
+`-`
 
   </td>
   </tr>

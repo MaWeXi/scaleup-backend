@@ -6,12 +6,14 @@ import com.scaleup.backend.stocksByUser.StockByUser;
 import com.scaleup.backend.stocksByUser.StockByUserRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class UserByLeagueService {
 
     final UserByLeagueRepository userByLeagueRepository;

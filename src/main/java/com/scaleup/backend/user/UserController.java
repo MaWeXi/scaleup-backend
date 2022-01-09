@@ -32,12 +32,12 @@ public class UserController {
         return userService.createUser(user);
     }
 
-    @PutMapping("/user/{id}/")
+    @PutMapping("/user/{id}")
     public ResponseEntity<User> updateUser(@PathVariable("id") String userId, @RequestBody User user) {
         return userService.updateUser(userId, user);
     }
 
-    @PutMapping("/user/join_league/{id}/")
+    @PutMapping("/user/join-league/{id}")
     public ResponseEntity<User> updateLeagueOfUser(@PathVariable("id") String userId, @RequestBody AddLeagueDTO addLeagueDTO) {
         return userService.addUserToLeague(userId, addLeagueDTO);
     }
