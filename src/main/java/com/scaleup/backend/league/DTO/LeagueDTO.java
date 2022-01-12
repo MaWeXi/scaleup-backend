@@ -13,9 +13,7 @@ import java.util.LinkedHashMap;
 public class LeagueDTO {
 
     private String userId;
-    private String leagueId;
     private String leagueName;
-    private String code;
     private BigDecimal startBudget;
     private BigDecimal transactionCost;
     private Integer stockAmount;

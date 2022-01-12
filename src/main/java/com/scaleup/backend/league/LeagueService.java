@@ -66,21 +66,30 @@ public class LeagueService {
 
     @Transactional
     public ResponseEntity<League> createLeague(LeagueDTO leagueDTO) {
-        Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueId(leagueDTO.getLeagueId());
         Optional<User> userOptional = userRepository.findUserById(leagueDTO.getUserId());
 
-        Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findByLeagueIdAndUserId(
-                leagueDTO.getLeagueId(),
-                leagueDTO.getUserId());
-
-        if (leagueOptional.isEmpty() && userOptional.isPresent() && userByLeagueOptional.isEmpty()) {
+        if (userOptional.isPresent()) {
 
             try {
 
                 /*
-                Map leagueDTO to league and save in DB
+                Map leagueDTO to league
                  */
                 League league = modelMapper.map(leagueDTO, League.class);
+
+                // Create and set new leagueId and new leagueCode
+                String leagueCode = getUniqueString();
+                String leagueId = leagueCode + "_SUID";
+                while (leagueRepository.findLeagueByLeagueId(leagueId).isPresent()){
+                    leagueCode = getUniqueString();
+                    leagueId = leagueCode + "_SUID";
+                }
+                league.setLeagueId(leagueId);
+                league.setLeagueCode(leagueCode);
+
+                /*
+                Save new league in DB
+                 */
                 League _league = leagueRepository.save(league);
 
                 /*
@@ -100,7 +109,7 @@ public class LeagueService {
 
                 // Save new league and user as admin to user_by_league DB
                 UserByLeague userByLeague = new UserByLeague(
-                        leagueDTO.getLeagueId(),
+                        league.getLeagueId(),
                         savedUser.getId(),
                         savedUser.getUsername(),
                         BigDecimal.ZERO,
@@ -120,10 +129,26 @@ public class LeagueService {
             }
         } else {
             throw new CustomErrorException(HttpStatus.CONFLICT,
-                    "Either this league id does already exist or the user does not exist in the DB or the user is already in this league",
+                    "The user does not exist in the DB",
                     leagueDTO);
         }
     }
+
+    // ----------------------------------- Helperclass -----------------------------------
+
+    protected String getUniqueString() {
+        String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        StringBuilder salt = new StringBuilder();
+        Random rnd = new Random();
+        while (salt.length() < 6) { // length of the random string.
+            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
+            salt.append(SALTCHARS.charAt(index));
+        }
+        String saltStr = salt.toString();
+        return saltStr;
+    }
+
+    // -----------------------------------------------------------------------------------
 
     public ResponseEntity<List<LeaderboardUserDTO>> getLeaderboardByLeagueId(String leagueId) {
         Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueId(leagueId);

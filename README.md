@@ -166,9 +166,7 @@ API Requests and responses for the leagues controller
   ```json
   {
       "userId": "ba7159b0-10e8-4141-b085-4d1060bd739c",
-      "leagueId": "1d701622-4e4c-481e-84ad-02b8aec21136",
       "leagueName": "Best league ever",
-      "code": "0000",
       "startBudget": 10000,
       "transactionCost": 5,
       "stockAmount": 200,
@@ -420,12 +418,8 @@ joker/update sets joker for stock in market
 
 ```json
 {
-"leagueid": "1d701622-4e4c-1111-1111-testleague36",
-"symbol": "AINN.DE",
-"current_value": null,
-"date_entered": "2021-12-26T19:30:24.507+00:00",
-"date_left": "2022-01-09T19:30:24.507+00:00",
-"joker_active": true
+  "userid": "15787aab-9ec8-1111-1111-testuserb16a",
+  "symbol": "ABEA.DE"
 }
 ```
 
