@@ -46,14 +46,15 @@ public class StockByUserService {
 
             //check whether user and stock exist and if user has enough freeBudget to buy the amount of stock
             if (stock.isPresent() && userByLeague.isPresent() && (userByLeague.get().getFreeBudget()).intValue()>(stock.get().getCurrentPrice().multiply(BigDecimal.valueOf(amount))).intValue()){
-                BigDecimal price = stock.get().getCurrentPrice();
+                BigDecimal askPrice = stock.get().getAskPrice();
 
                 //check whether Stock is already in depot of user
                 if (stockByUser.isPresent()){
                     //case: stock is already in depot of user
-                    //get information and update the entity in stocksByUser
+                    //get information and update the entity in stocksByUser for amount (he owns of the stock) and valueWhenBought
                     stockByUserReturn = stockByUser.get();
                     stockByUserReturn.setAmount(stockByUser.get().getAmount()+amount);
+                    stockByUserReturn.setValueWhenBought(stockByUser.get().getValueWhenBought().add(askPrice.multiply(BigDecimal.valueOf(amount))));
                     stockByUserReturn = stockByUserRepository.save(stockByUserReturn);
                 } else {
                     //case: stock is not yet in depot of user
@@ -64,6 +65,7 @@ public class StockByUserService {
                     stockByUser1.setSymbol(symbol);
                     stockByUser1.setAmount(amount);
                     stockByUser1.setTimeLastUpdated(timestamp);
+                    stockByUser1.setValueWhenBought(askPrice.multiply(BigDecimal.valueOf(amount)));
                     stockByUserReturn = stockByUserRepository.save(stockByUser1);
                 }
 
@@ -72,19 +74,23 @@ public class StockByUserService {
                 transaction.setLeagueId(leagueid);
                 transaction.setUserId(userid);
                 transaction.setSymbol(symbol);
+                transaction.setUsername(userByLeague.get().getUsername());
                 transaction.setAmount(amount.floatValue());
                 transaction.setTypeOfTransaction("buy");
                 transaction.setYear(timestamp.getYear());
                 transaction.setTimestampTransaction(timestamp);
-                transaction.setSingleStockValue(price);
+                transaction.setSingleStockValue(askPrice);
+                transactionRepository.save(transaction);
 
-                //reduce freeBudget
-                // TODO: change Depotwert
-                UserByLeague userByLeagueUpdateBudget = userByLeague.get();
-                BigDecimal budget = userByLeagueUpdateBudget.getFreeBudget();
-                budget = budget.subtract(BigDecimal.valueOf(amount).multiply(price));
-                userByLeagueUpdateBudget.setFreeBudget(budget);
-                userByLeagueRepository.save(userByLeagueUpdateBudget);
+                //reduce freeBudget and increase DepotValue
+                UserByLeague userByLeagueUpdate = userByLeague.get();
+                BigDecimal freeBudget = userByLeagueUpdate.getFreeBudget();
+                freeBudget = freeBudget.subtract(BigDecimal.valueOf(amount).multiply(askPrice));
+                userByLeagueUpdate.setFreeBudget(freeBudget);
+                BigDecimal portfolioValue = userByLeagueUpdate.getPortfolio_value();
+                portfolioValue = portfolioValue.add(BigDecimal.valueOf(amount).multiply(askPrice));
+                userByLeagueUpdate.setPortfolio_value(portfolioValue);
+                userByLeagueRepository.save(userByLeagueUpdate);
             } else {
                 throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User oder die Aktie existieren nicht oder der User hat zu wenig Geld");
             }
@@ -109,16 +115,17 @@ public class StockByUserService {
 
             //check whether user and stock exist
             if (stock.isPresent() && userByLeague.isPresent()){
-                BigDecimal price = stock.get().getCurrentPrice();
+                BigDecimal bidPrice = stock.get().getBidPrice();
                 Boolean enoughStocks = stockByUser.get().getAmount()>=stockSell.getAmount();
 
                 //add entity in stocksByUser
                 //check whether Stock is in depot of user and if the user has enough stocks
                 if (stockByUser.isPresent() && enoughStocks){
                     //case: stock is already in depot of user and user has enough stocks
-                    //get information and update the entity in stocksByUser
+                    //get information and update the entity in stocksByUser for amount (he owns of the stock) and valueWhenBought
                     stockByUserReturn = stockByUser.get();
                     stockByUserReturn.setAmount(stockByUser.get().getAmount()-amount);
+                    stockByUserReturn.setValueWhenBought(stockByUser.get().getValueWhenBought().subtract(bidPrice.multiply(BigDecimal.valueOf(amount))));
                     stockByUserReturn = stockByUserRepository.save(stockByUserReturn);
                 } else if (enoughStocks) {
                     //case: stock is not yet in depot of user and user has enough stocks
@@ -139,19 +146,23 @@ public class StockByUserService {
                 transaction.setLeagueId(leagueid);
                 transaction.setUserId(userid);
                 transaction.setSymbol(symbol);
+                transaction.setUsername(userByLeague.get().getUsername());
                 transaction.setAmount(amount.floatValue());
                 transaction.setTypeOfTransaction("sell");
                 transaction.setYear(timestamp.getYear());
                 transaction.setTimestampTransaction(timestamp);
-                transaction.setSingleStockValue(price);
+                transaction.setSingleStockValue(bidPrice);
+                transactionRepository.save(transaction);
 
-                //add profit to freeBudget
-                // TODO: change Depotwert
-                UserByLeague userByLeagueUpdateBudget = userByLeague.get();
-                BigDecimal budget = userByLeagueUpdateBudget.getFreeBudget();
-                budget = budget.add(BigDecimal.valueOf(amount).multiply(price));
-                userByLeagueUpdateBudget.setFreeBudget(budget);
-                userByLeagueRepository.save(userByLeagueUpdateBudget);
+                //add profit to freeBudget and decrease portfolioValue in userByLeague
+                UserByLeague userByLeagueUpdate = userByLeague.get();
+                BigDecimal budget = userByLeagueUpdate.getFreeBudget();
+                budget = budget.add(BigDecimal.valueOf(amount).multiply(bidPrice));
+                userByLeagueUpdate.setFreeBudget(budget);
+                BigDecimal portfolioValue = userByLeagueUpdate.getPortfolio_value();
+                portfolioValue = portfolioValue.subtract(BigDecimal.valueOf(amount).multiply(bidPrice));
+                userByLeagueUpdate.setPortfolio_value(portfolioValue);
+                userByLeagueRepository.save(userByLeagueUpdate);
             } else {
                 throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User oder die Aktie existieren nicht oder der User hat zu wenig Geld");
             }

@@ -32,6 +32,9 @@ public class Transaction {
     @PrimaryKeyColumn(name = "symbol", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
     private String symbol;
 
+    @Column("username")
+    private String username;
+
     @Column("singleStockValue")
     private BigDecimal singleStockValue;
 

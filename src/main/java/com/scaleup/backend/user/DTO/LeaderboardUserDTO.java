@@ -13,4 +13,6 @@ public class LeaderboardUserDTO {
 
     private String username;
     private BigDecimal portfolio_value;
+    private BigDecimal freeBudget;
+
 }

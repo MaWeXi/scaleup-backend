@@ -1,4 +1,4 @@
-package com.scaleup.backend.stocksByUser;
+package com.scaleup.backend.depotByUser;
 
 
 import lombok.AllArgsConstructor;
@@ -10,29 +10,29 @@ import org.springframework.data.cassandra.core.mapping.PrimaryKeyColumn;
 import org.springframework.data.cassandra.core.mapping.Table;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
-@Table("stocksByUser")
+@Table("depotByUser")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StockByUser {
-    //leagueId, userId, symbol, timeLastUpdated, amount
+public class DepotByUser {
+
     @PrimaryKeyColumn(name = "leagueId", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private String leagueId;
 
-    @PrimaryKeyColumn(name = "userId", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
+    @PrimaryKeyColumn(name = "userId", ordinal =  1, type = PrimaryKeyType.CLUSTERED)
     private String userId;
 
-    @PrimaryKeyColumn(name = "symbol", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
-    private String symbol;
+    @PrimaryKeyColumn(name = "date", ordinal =  2, type = PrimaryKeyType.CLUSTERED)
+    private LocalDateTime date;
 
-    @Column("timeLastUpdated")
-    private Timestamp timeLastUpdated;
+    @Column("portfolioValue")
+    private BigDecimal portfolioValue;
 
-    @Column("amount")
-    private Integer amount;
+    @Column("depotValue")
+    private BigDecimal depotValue;
 
-    @Column("valueWhenBought")
-    private BigDecimal valueWhenBought;
 }
