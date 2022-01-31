@@ -184,7 +184,9 @@ public class UserByLeagueService {
             }
             linkedHashMap.put(today, portfolioValueToday);
 
-
+            //get free Budget
+            UserByLeague userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueid, userid).get();
+            BigDecimal freeBudget = userByLeague.getFreeBudget();
 
             // get amount of usable jokers
             Integer amountJokers = findNumberOfJokerAvailable(leagueid, userid).getBody();
@@ -196,6 +198,7 @@ public class UserByLeagueService {
             depotUser.setStocksInDepot(stocksInDepot);
             depotUser.setHistoryPortfolio_value(linkedHashMap);
             depotUser.setAmountJoker(amountJokers);
+            depotUser.setFreeBudget(freeBudget);
 
             return new ResponseEntity<>(depotUser, HttpStatus.OK);
         } catch (Exception e) {
@@ -220,5 +223,23 @@ public class UserByLeagueService {
             // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
+    }
+
+    public ResponseEntity<BigDecimal> getFreeBudget(ValueDepotUpdate valueDepotUpdate) {
+        String leagueId = valueDepotUpdate.getLeagueid();
+        String userId = valueDepotUpdate.getUserid();
+        try {
+            Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueId, userId);
+            if (userByLeague.isEmpty()){
+                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User mit id " + userId + " ist nicht in der Liga mit id " + leagueId);
+            } else {
+                BigDecimal freeBudget = userByLeague.get().getFreeBudget();
+                return new ResponseEntity<>(freeBudget, HttpStatus.OK);
+            }
+        } catch (Exception e) {
+            // TODO: Implement logging of errors
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+
     }
 }

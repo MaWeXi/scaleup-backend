@@ -26,4 +26,9 @@ public class UserByLeagueController {
     public ResponseEntity<DepotUser> getDepotUser(@RequestBody ValueDepotUpdate valueDepotUpdate) {
         return userByLeagueService.getDepotUser(valueDepotUpdate);
     }
+
+    @GetMapping("/freeBudget")
+    public ResponseEntity<BigDecimal> getFreeBudget(@RequestBody ValueDepotUpdate valueDepotUpdate) {
+        return userByLeagueService.getFreeBudget(valueDepotUpdate);
+    }
 }

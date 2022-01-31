@@ -630,6 +630,20 @@ get full depot request
   </td>
   </tr>
 
+<tr>
+  <td> Get </td>
+  <td> http://localhost:8080/api/v1/freeBudget </td>
+  <td>
+
+```json
+{
+  "leagueid": "1d701622-4e4c-1111-1111-testleague69",
+  "userid": "15787aab-9ec8-1111-1111-testuserb16a"
+}
+```
+  </td>
+  </tr>
+
   <tr>
   <td> Get </td>
   <td> http://localhost:8080/api/v1/Depot </td>
