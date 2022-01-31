@@ -27,7 +27,7 @@ public class Test {
             .setMaster("local[2]")
 
             // .set("spark.files", "C:/Users/Maximilian/Desktop/dsbulk-1.8.0/bin/secure-connect-scaleup.zip")
-            .set("spark.files", "C:\\Users\\Maximilian\\Desktop\\ScaleUp\\src\\main\\resources\\secure-connect-scale-up.zip")
+            .set("spark.files", "src/main/resources/secure-connect-scale-up.zip")
 
             .set("spark.cassandra.connection.config.cloud.path", "secure-connect-scale-up.zip")
 
