@@ -486,6 +486,7 @@ ___
 
 API Requests and responses for the stocksByUser controller\
 Posts to buy and sell stock
+Get-request to get amount of stock owned. This is needed to determine how much stock a user can sell.
 
 
 ### API Requests
@@ -524,6 +525,22 @@ Posts to buy and sell stock
   "symbol": "ABEA.DE",
   "bidPrice": "1",
   "amount": "3"
+}
+```
+
+  </td>
+  </tr>
+
+<tr>
+  <td> Get </td>
+  <td> http://localhost:8080/api/v1/stockByUser/GetStockAmountOwned </td>
+  <td>
+
+```json
+{
+  "leagueId": "XL8L3M_SUID",
+  "userId": "15787aab-9ec8-1111-1111-testuserb16a",
+  "symbol": "YOC.DE"
 }
 ```
 
