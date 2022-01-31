@@ -3,6 +3,8 @@ package com.scaleup.backend.stock;
 import com.scaleup.backend.exceptionHandling.CustomErrorException;
 import com.scaleup.backend.stock.DTO.AskUpdate;
 import com.scaleup.backend.stock.DTO.BidUpdate;
+import com.scaleup.backend.stock.DTO.ChartData;
+import org.json.JSONException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,9 +16,11 @@ import java.util.List;
 public class StockController {
 
     final StockService stockService;
+    final Test test;
 
-    public StockController(StockService stockService) {
+    public StockController(StockService stockService, Test test) {
         this.stockService = stockService;
+        this.test = test;
     }
 
     @PostMapping("/stock")
@@ -42,8 +46,14 @@ public class StockController {
         return stockService.getAskPrice(symbol);
     }
 
-//    @GetMapping("/stock/user/{userId}")
-//    public ResponseEntity<List<Stock>> getStocksByUserId(@PathVariable("userId") String userId) {
-//        return stockService.getStocksByUserId(userId);
-//    }
+    @GetMapping("stock/test")
+    public ResponseEntity<List<ChartData>> getUserTest() {
+        List<ChartData> list = test.getUserId();
+
+//        for (Stock stock : rdd.collect()) {
+//            System.out.println(stock);
+//        }
+
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
 }
