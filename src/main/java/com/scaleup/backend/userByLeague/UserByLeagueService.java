@@ -153,8 +153,8 @@ public class UserByLeagueService {
             LocalDateTime today = todayDate.atStartOfDay();
             LocalDateTime yesterday = today.minusDays(1);
             Optional<DepotByUser> depotByUser = depotByUserRepository.findAllByLeagueIdEqualsAndUserIdEqualsAndDateEquals(leagueid, userid, yesterday);
-            BigDecimal porfolio_valueDevelopmentTotal = BigDecimal.valueOf(0);
-            BigDecimal porfolio_valueDevelopmentPercent = BigDecimal.valueOf(0);
+            BigDecimal porfolio_valueDevelopmentTotal = BigDecimal.valueOf(0.0);
+            BigDecimal porfolio_valueDevelopmentPercent = BigDecimal.valueOf(0.0);
             BigDecimal portfolioValueToday = BigDecimal.valueOf(0);
             for (int i = 0; i<currentPriceTotalValue.size(); i++){
                 portfolioValueToday = currentPriceTotalValue.get(i).add(portfolioValueToday);
@@ -175,13 +175,14 @@ public class UserByLeagueService {
             LocalDateTime dateIterator = thirtyDaysAgo;
             // for the amount of days, that do not have an entity in depotByUser yet (because back then the user was not in the league yet) we add a 0 to the HashMap
             for (int i = 0; i<30-past30DaysPortfolioValue.size(); i++){
-                linkedHashMap.put(dateIterator, BigDecimal.valueOf(0));
+                linkedHashMap.put(dateIterator, BigDecimal.valueOf(0.0));
                 dateIterator = dateIterator.plusDays(1);
             }
             // add the date and portfoliovalue to the hashmap
             for (int i = 0; i<past30DaysPortfolioValue.size(); i++){
                 linkedHashMap.put(past30DaysPortfolioValue.get(i).getDate(), past30DaysPortfolioValue.get(i).getPortfolioValue());
             }
+            linkedHashMap.put(today, portfolioValueToday);
 
 
 
