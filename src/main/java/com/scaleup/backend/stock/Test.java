@@ -37,7 +37,8 @@ public class Test {
             // .set("spark.cassandra.auth.password", "wzTpZWbHcps4k5zAF1qTJSvQwW0fE0rEHNPhUR0xRGvLv_108KA46vYkBrjug96+LIbvkY2qPY5n4crt+Zjx9HpIPUSPdfZaHLHJvYX5pZ-so-RHZoZ5.jWcnNYtL.bT")
             .set("spark.cassandra.auth.password", "_K4g+3+Sdx0Shib_IRwL190+irmCZ5DOh6h-424XJ5i+7mfQNFIXKPv-.,bM3JelrjY918ebL6ttC6ujGE2FKXs4RM7oMiNHzS+5kdm0zc4os5sxhIv0UWc6SZ0JjKK2")
 
-            .set("spark.dse.continuousPagingEnabled", "false");
+            .set("spark.dse.continuousPagingEnabled", "false")
+            .set("spark.testing.memory", "2147480000");
     JavaSparkContext sc = new JavaSparkContext(conf);
 
     SparkSession spark = SparkSession
