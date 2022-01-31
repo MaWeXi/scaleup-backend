@@ -3,6 +3,7 @@ package com.scaleup.backend.stocksByUser;
 import com.scaleup.backend.exceptionHandling.CustomErrorException;
 import com.scaleup.backend.stock.Stock;
 import com.scaleup.backend.stock.StockRepository;
+import com.scaleup.backend.stocksByUser.DTO.StockAmountGetInformation;
 import com.scaleup.backend.transactions.Transaction;
 import com.scaleup.backend.transactions.TransactionRepository;
 import com.scaleup.backend.stocksByUser.DTO.StockBuy;
@@ -168,6 +169,23 @@ public class StockByUserService {
             }
             return new ResponseEntity<>(stockByUserReturn, HttpStatus.OK);
         }catch (Exception e){
+            // TODO: Implement logging of errors
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    public ResponseEntity<Integer> getStockAmountOwned(StockAmountGetInformation stockAmountGetInformation) {
+        try {
+            String leagueId = stockAmountGetInformation.getLeagueId();
+            String userId = stockAmountGetInformation.getUserId();
+            String symbol = stockAmountGetInformation.getSymbol();
+            Optional<StockByUser> stockByUser = stockByUserRepository.findAllByLeagueIdEqualsAndUserIdEqualsAndSymbolEquals(leagueId, userId, symbol);
+            if (stockByUser.isEmpty()) {
+                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User besitzt diese Aktie nicht");
+            }
+            Integer amountStockOwned = stockByUser.get().getAmount();
+            return new ResponseEntity<>(amountStockOwned, HttpStatus.OK);
+        } catch (Exception e) {
             // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }

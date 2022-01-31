@@ -681,3 +681,33 @@ Stock with this symbol could not be found in the DB
 
 </table>
 
+
+## Transactions
+
+API Requests and responses for the user controller.
+
+_Always look at the message in the JSON response for further information if you get an error._
+
+With this Get request you get all transactions within a league. Maybe for future work we need to limit the Get-response to x transactions (maybe x = 100).
+### API Requests
+
+<table>
+  <tr>
+   <td> HTTP </td> <td> URL </td> <td> Body </td>
+  </tr>
+
+ 
+
+  <tr>
+  <td> GET </td>
+  <td> http://localhost:8080/api/v1/transactions/league/all/{leagueId} </td>
+  <td>
+
+`-`
+
+  </td>
+  </tr>
+
+  
+</table>
+
