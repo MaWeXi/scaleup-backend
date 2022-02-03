@@ -297,12 +297,12 @@ bidPrice returns current bidPrice and its development in percent to the value wh
 
   <tr>
   <td> GET </td>
-  <td> http://localhost:8080/api/v1/stock/{symbol} </td>
-  <td>
-
-`-`
-
-  </td>
+  <td> http://localhost:8080/api/v1/stock/{symbol}
+       <br>
+       http://localhost:8080/api/v1/stock/{symbol}?interval=day</td>
+  <td> Optional URL Parameters:
+       <br>
+       interval = day, week, month</td>
   </tr>
 
 <tr>
@@ -348,7 +348,10 @@ bidPrice returns current bidPrice and its development in percent to the value wh
 
 ```json
 {
-    "symbol": "BTC-EUR",
+    "symbol": "BMW.DE",
+    "name": "Bayerische Motorenwerke",
+    "isin": "DE0005190003",
+    "wkn": "519000",
     "lastUpdated": "2021-12-06T19:05:29.000+00:00",
     "price": 43411.125,
     "dayOpen": 43632.46,
@@ -359,7 +362,17 @@ bidPrice returns current bidPrice and its development in percent to the value wh
     "fiftyTwoLow": 14539.374,
     "volume": 3.15467428E10,
     "stockType": "CRYPTOCURRENCY",
-    "sector": "Blockchain"
+    "sector": "Blockchain",
+    "stockHistory": [
+        {
+          "date": "2021-02-03T16:00:00.000+00:00",
+          "close": 133.750000000000000000
+        },
+        {
+          "date": "2021-02-02T09:30:00.000+00:00",
+          "close": 135.650000000000000000
+        }
+    ]  
 }
 ```
 

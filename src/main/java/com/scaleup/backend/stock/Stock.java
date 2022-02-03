@@ -7,6 +7,7 @@ import org.springframework.data.cassandra.core.mapping.Column;
 import org.springframework.data.cassandra.core.mapping.PrimaryKey;
 import org.springframework.data.cassandra.core.mapping.Table;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
@@ -14,10 +15,19 @@ import java.sql.Timestamp;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Stock {
+public class Stock implements Serializable {
 
     @PrimaryKey("symbol")
     private String symbol;
+
+    @Column("name")
+    private String name;
+
+    @Column("isin")
+    private String isin;
+
+    @Column("wkn")
+    private String wkn;
 
     @Column("last_updated")
     private Timestamp lastUpdated;

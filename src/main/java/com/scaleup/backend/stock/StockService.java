@@ -1,15 +1,15 @@
 package com.scaleup.backend.stock;
 
 import com.scaleup.backend.exceptionHandling.CustomErrorException;
-import com.scaleup.backend.stock.DTO.AskUpdate;
-import com.scaleup.backend.stock.DTO.BidUpdate;
-import com.scaleup.backend.stock.DTO.CurrentPriceUpdate;
+import com.scaleup.backend.stock.DTO.*;
+import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,9 +17,14 @@ import java.util.Optional;
 public class StockService {
 
     final StockRepository stockRepository;
+    final StockHistoryQuarterRepository stockHistoryQuarterRepository;
+    final StockHistoryMaxRepository stockHistoryMaxRepository;
+    final ModelMapper modelMapper = new ModelMapper();
 
-    public StockService(StockRepository stockRepository) {
+    public StockService(StockRepository stockRepository, StockHistoryQuarterRepository stockHistoryQuarterRepository, StockHistoryMaxRepository stockHistoryMaxRepository) {
         this.stockRepository = stockRepository;
+        this.stockHistoryQuarterRepository = stockHistoryQuarterRepository;
+        this.stockHistoryMaxRepository = stockHistoryMaxRepository;
     }
 
     public ResponseEntity<?> updateAllStocks(List<Stock> stocks) {
@@ -27,24 +32,63 @@ public class StockService {
             stockRepository.saveAll(stocks);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
-
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
-    public ResponseEntity<Stock> getStockBySymbol(String symbol) {
-        try {
-            Optional<Stock> stockOptional = stockRepository.findStockBySymbol(symbol);
+    public ResponseEntity<StockDTO> getStockBySymbol(String symbol) {
+        Optional<Stock> stockOptional = stockRepository.findStockBySymbol(symbol);
 
+        try {
             if (stockOptional.isPresent()) {
-                return new ResponseEntity<>(stockOptional.get(), HttpStatus.OK);
+                /*
+                Map Stock to StockDTO
+                 */
+                StockDTO stockDTO = modelMapper.map(stockOptional.get(), StockDTO.class);
+
+                return new ResponseEntity<>(stockDTO, HttpStatus.OK);
             } else {
                 throw new CustomErrorException(HttpStatus.NOT_FOUND, "Stock with this symbol could not be found");
             }
         } catch (Exception e) {
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
 
-            // TODO: Implement logging of errors
+    public ResponseEntity<StockDTO> getStockWithHistory(String symbol, String interval) {
+        Optional<Stock> stockOptional = stockRepository.findStockBySymbol(symbol);
+
+        try {
+            if (stockOptional.isPresent()) {
+
+                List<StockHistory> stockHistories;
+
+                switch (interval) {
+                    case "day":
+                    case "week":
+                    case "month":
+                        stockHistories = stockHistoryQuarterRepository.getStockHistoryByQuarter("AAPL", interval).collectAsList();
+                        break;
+                    case "year":
+                    case "max":
+                        LocalDate dateNow = LocalDate.now().minusYears(1);
+                        stockHistories = stockHistoryMaxRepository.findBySymbolAndDate(symbol, dateNow, dateNow.minusYears(1));
+                        break;
+                    default:
+                        throw new CustomErrorException(HttpStatus.NOT_FOUND, "Interval not valid");
+                }
+
+                /*
+                Map Stock to StockDTO
+                 */
+                StockDTO stockDTO = modelMapper.map(stockOptional.get(), StockDTO.class);
+                stockDTO.setStockHistory(stockHistories);
+
+                return new ResponseEntity<>(stockDTO, HttpStatus.OK);
+            } else {
+                throw new CustomErrorException(HttpStatus.NOT_FOUND, "Stock with this symbol could not be found");
+            }
+        } catch (Exception e) {
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -64,7 +108,6 @@ public class StockService {
                 throw new CustomErrorException(HttpStatus.NOT_FOUND, "Stock with this symbol could not be found");
             }
         } catch (Exception e) {
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -83,7 +126,6 @@ public class StockService {
                 throw new CustomErrorException(HttpStatus.NOT_FOUND, "Stock with this symbol could not be found");
             }
         } catch (Exception e) {
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -103,18 +145,7 @@ public class StockService {
                 throw new CustomErrorException(HttpStatus.NOT_FOUND, "Stock with this symbol could not be found");
             }
         } catch (Exception e) {
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
-
-//    public ResponseEntity<List<Stock>> getStocksByUserId(String userId) {
-//        try {
-//
-//        } catch (Exception e) {
-//
-//            // TODO: Implement logging of errors
-//            throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
-//        }
-//    }
 }

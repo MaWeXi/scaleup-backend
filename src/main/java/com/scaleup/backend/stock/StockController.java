@@ -3,11 +3,13 @@ package com.scaleup.backend.stock;
 import com.scaleup.backend.exceptionHandling.CustomErrorException;
 import com.scaleup.backend.stock.DTO.AskUpdate;
 import com.scaleup.backend.stock.DTO.BidUpdate;
+import com.scaleup.backend.stock.DTO.StockDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/")
@@ -28,8 +30,12 @@ public class StockController {
     }
 
     @GetMapping("/stock/{symbol}")
-    public ResponseEntity<Stock> getStockBySymbol(@PathVariable("symbol") String symbol) {
-        return stockService.getStockBySymbol(symbol);
+    public ResponseEntity<StockDTO> getStockBySymbol(@PathVariable("symbol") String symbol, @RequestParam Optional<String> interval) {
+        if (interval.isEmpty()) {
+            return stockService.getStockBySymbol(symbol);
+        } else {
+            return stockService.getStockWithHistory(symbol, interval.get());
+        }
     }
 
     @GetMapping("stock/bidPrice/{symbol}")
@@ -41,9 +47,4 @@ public class StockController {
     public ResponseEntity<AskUpdate> getAskPrice(@PathVariable("symbol") String symbol) {
         return stockService.getAskPrice(symbol);
     }
-
-//    @GetMapping("/stock/user/{userId}")
-//    public ResponseEntity<List<Stock>> getStocksByUserId(@PathVariable("userId") String userId) {
-//        return stockService.getStocksByUserId(userId);
-//    }
 }
