@@ -1,7 +1,7 @@
-package com.scaleup.backend.stock;
+package com.scaleup.backend.stockHistory;
 
 import com.datastax.oss.driver.shaded.guava.common.collect.ImmutableMap;
-import com.scaleup.backend.stock.DTO.StockHistory;
+import com.scaleup.backend.stockHistory.DTO.StockHistoryDTO;
 import org.apache.spark.SparkConf;
 import org.apache.spark.sql.*;
 import org.springframework.stereotype.Repository;
@@ -31,7 +31,7 @@ public class StockHistoryQuarterRepository {
             .config(conf)
             .getOrCreate();
 
-    public Dataset<StockHistory> getStockHistoryByQuarter(String symbol, String interval) {
+    public Dataset<StockHistoryDTO> getStockHistoryByQuarter(String symbol, String interval) {
 
         LocalDate date = LocalDate.now().minusYears(1);
         final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-Q");
@@ -73,7 +73,7 @@ public class StockHistoryQuarterRepository {
                 .filter(filterExpression)
                 .select("close", "date");
 
-        Encoder<StockHistory> stockHistoryEncoder = Encoders.bean(StockHistory.class);
+        Encoder<StockHistoryDTO> stockHistoryEncoder = Encoders.bean(StockHistoryDTO.class);
         return df.as(stockHistoryEncoder);
     }
 }

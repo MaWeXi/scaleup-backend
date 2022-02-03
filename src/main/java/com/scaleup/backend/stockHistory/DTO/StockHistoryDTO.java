@@ -1,4 +1,4 @@
-package com.scaleup.backend.stock.DTO;
+package com.scaleup.backend.stockHistory.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,7 +14,7 @@ import java.sql.Timestamp;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class StockHistory implements Serializable {
+public class StockHistoryDTO implements Serializable {
     private Timestamp date;
     private BigDecimal close;
 }

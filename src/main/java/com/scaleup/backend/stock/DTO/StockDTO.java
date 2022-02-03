@@ -1,5 +1,6 @@
 package com.scaleup.backend.stock.DTO;
 
+import com.scaleup.backend.stockHistory.DTO.StockHistoryDTO;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -26,5 +27,5 @@ public class StockDTO {
     private Float volume;
     private String stockType;
     private String sector;
-    private List<StockHistory> stockHistory;
+    private List<StockHistoryDTO> stockHistoryDTO;
 }

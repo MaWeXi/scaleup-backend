@@ -302,7 +302,7 @@ bidPrice returns current bidPrice and its development in percent to the value wh
        http://localhost:8080/api/v1/stock/{symbol}?interval=day</td>
   <td> Optional URL Parameters:
        <br>
-       interval = day, week, month</td>
+       interval = day, week, month, year</td>
   </tr>
 
 <tr>
