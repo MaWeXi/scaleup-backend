@@ -20,6 +20,15 @@ public class Stock implements Serializable {
     @PrimaryKey("symbol")
     private String symbol;
 
+    @Column("name")
+    private String name;
+
+    @Column("isin")
+    private String isin;
+
+    @Column("wkn")
+    private String wkn;
+
     @Column("last_updated")
     private Timestamp lastUpdated;
 
