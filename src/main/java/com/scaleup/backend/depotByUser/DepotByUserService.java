@@ -34,23 +34,21 @@ public class DepotByUserService {
         try {
             List<UserByLeague> userByLeagueList = userByLeagueRepository.findAll();
             if (userByLeagueList.isEmpty()) {
-                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Es gibt noch keine User");
+                throw new CustomErrorException(HttpStatus.NO_CONTENT, "There are no users in this league");
             }
             String leagueId;
             String userId;
             LocalDate todayDate = LocalDate.now();
             LocalDateTime todayTime = todayDate.atStartOfDay();
 
-            for (int i = 0; i<userByLeagueList.size(); i++) {
-                leagueId = userByLeagueList.get(i).getLeagueId();
-                userId = userByLeagueList.get(i).getUserId();
-                PortfolioAndDepotValue portfolioAndDepotValue = userByLeagueService.getCurrentPortfolioAndDepotValue(leagueId, userId).getBody();
-                DepotByUser depotByUser = new DepotByUser(leagueId, userId, todayTime, portfolioAndDepotValue.getPortfoliValue(), portfolioAndDepotValue.getDepotValue());
+            for (UserByLeague userByLeague : userByLeagueList) {
+                leagueId = userByLeague.getLeagueId();
+                userId = userByLeague.getUserId();
+                PortfolioAndDepotValue portfolioAndDepotValue = userByLeagueService.getCurrentPortfolioAndDepotValue(leagueId, userId);
+                DepotByUser depotByUser = new DepotByUser(leagueId, userId, todayTime, portfolioAndDepotValue.getPortfolioValue(), portfolioAndDepotValue.getDepotValue());
                 depotByUserRepository.save(depotByUser);
             }
-                return;
         }catch (Exception e){
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }

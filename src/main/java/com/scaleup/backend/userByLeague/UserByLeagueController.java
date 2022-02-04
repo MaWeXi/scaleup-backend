@@ -22,7 +22,7 @@ public class UserByLeagueController {
         return userByLeagueService.updateValueDepot(valueDepotUpdate);
     }
 
-    @GetMapping("/Depot")
+    @GetMapping("/depot")
     public ResponseEntity<DepotUser> getDepotUser(@RequestBody ValueDepotUpdate valueDepotUpdate) {
         return userByLeagueService.getDepotUser(valueDepotUpdate);
     }

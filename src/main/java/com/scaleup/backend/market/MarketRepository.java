@@ -10,18 +10,17 @@ import java.util.Optional;
 
 public interface MarketRepository extends CassandraRepository <Market, String>{
 
-    @AllowFiltering
     Optional<Market> findMarketByLeagueIdAndSymbol(String leagueId, String symbol);
 
     List<Market> findMarketByLeagueId(String league);
 
     void deleteMarketByLeagueId(String league);
 
-    @AllowFiltering
-    @Query("UPDATE markets set joker_activated=TRUE where leagueId=?1 AND symbol=?2")
-    void updateMarketJoker(String leagueId, String symbol);
-
-    @AllowFiltering
-    @Query("UPDATE markets set currentValue=?1 where leagueId=?2 AND symbol=?3")
-    void updateCurrentValue(BigDecimal current_value, String leagueId, String symbol);
+//    @AllowFiltering
+//    @Query("UPDATE markets set joker_activated=TRUE where leagueId=?1 AND symbol=?2")
+//    void updateMarketJoker(String leagueId, String symbol);
+//
+//    @AllowFiltering
+//    @Query("UPDATE markets set currentValue=?1 where leagueId=?2 AND symbol=?3")
+//    void updateCurrentValue(BigDecimal current_value, String leagueId, String symbol);
 }

@@ -160,7 +160,7 @@ public class LeagueService {
     }
 
     /*
-    Helper classes
+    Helper methods
      */
 
     protected String getUniqueString() {

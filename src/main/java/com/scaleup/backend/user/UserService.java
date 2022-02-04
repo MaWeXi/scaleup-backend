@@ -90,7 +90,7 @@ public class UserService {
     @Transactional
     public ResponseEntity<User> addUserToLeague(String userId, AddLeagueDTO addLeague) {
         Optional<User> userOptional = userRepository.findById(userId);
-        Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueIdEqualsAndLeagueCodeEquals(
+        Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueIdAndLeagueCode(
                 addLeague.getLeagueId(),
                 addLeague.getLeagueCode()
         );
@@ -161,7 +161,7 @@ public class UserService {
     }
 
     /*
-    Helper Methods
+    Helper methods
      */
 
     public User saveUser(User user) {

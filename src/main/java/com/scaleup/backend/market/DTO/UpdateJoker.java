@@ -9,7 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UpdateJoker {
 
-    private String userid;
+    private String userId;
     private String symbol;
 
 }

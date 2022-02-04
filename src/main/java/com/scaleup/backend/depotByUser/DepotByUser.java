@@ -29,10 +29,10 @@ public class DepotByUser {
     @PrimaryKeyColumn(name="date", ordinal=2, type=PrimaryKeyType.CLUSTERED)
     private LocalDateTime date;
 
-    @Column("portfolioValue")
+    @Column("portfolio_value")
     private BigDecimal portfolioValue;
 
-    @Column("depotValue")
+    @Column("depot_value")
     private BigDecimal depotValue;
 
 }

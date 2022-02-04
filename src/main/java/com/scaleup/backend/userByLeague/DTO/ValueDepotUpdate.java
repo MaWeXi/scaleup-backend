@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ValueDepotUpdate {
 
-    private String leagueid;
-    private String userid;
+    private String leagueId;
+    private String userId;
 
 }

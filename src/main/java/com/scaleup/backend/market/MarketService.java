@@ -30,127 +30,138 @@ public class MarketService {
         this.userByLeagueRepository = userByLeagueRepository;
     }
 
-    public ResponseEntity<List<Market>> findMarketByLeague(String league) {
+    public ResponseEntity<List<Market>> findMarketByLeague(String leagueId) {
         try {
-            Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueId(league);
+            Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueId(leagueId);
+
             if (leagueOptional.isPresent()){
-                List<Market> markets = marketRepository.findMarketByLeagueId(league);
+                List<Market> markets = marketRepository.findMarketByLeagueId(leagueId);
+
                 if (markets.isEmpty()) {
-                    System.out.println("markt ist leer -> marketrefresh");
-                    marketRefresh(league);
-                    markets = marketRepository.findMarketByLeagueId(league);
+                    System.out.println("market empty -> market refresh");
+                    marketRefresh(leagueId);
+                    markets = marketRepository.findMarketByLeagueId(leagueId);
                 } else if (markets.iterator().next().getDateLeft().before(new Timestamp(System.currentTimeMillis()))){
-                    System.out.println("markt hat veraltete Einträge -> marketrefresh");
-                    marketRefresh(league);
-                    markets = marketRepository.findMarketByLeagueId(league);
+                    System.out.println("market entries are old -> market refresh");
+                    marketRefresh(leagueId);
+                    markets = marketRepository.findMarketByLeagueId(leagueId);
                 } else {
-                    markets = updateCurrentPrices(markets).getBody();
+                    markets = updateCurrentPrices(markets, leagueId);
                 }
                 return new ResponseEntity<>(markets, HttpStatus.OK);
             } else {
-                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Es konnte keine Liga mit dieser leagueId gefunden werden");
+                throw new CustomErrorException(
+                        HttpStatus.NO_CONTENT,
+                        "Could not find a league with this id");
             }
         }catch (Exception e){
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
-    private ResponseEntity<List<Market>> updateCurrentPrices(List<Market> markets) {
+    public ResponseEntity<List<Market>> findMarketByLeagueWithJokerActive(String leagueId) {
         try {
-            for( int i=0; i<markets.size(); i++ ){
-                Market market = marketRepository.findMarketByLeagueIdAndSymbol(markets.get(i).getLeagueId(), markets.get(i).getSymbol()).get();
-                market.setCurrentValue(stockRepository.findStockBySymbol(markets.get(i).getSymbol()).get().getCurrentPrice());
-                marketRepository.save(market);
-            }
-            List<Market> marketUpdated = marketRepository.findMarketByLeagueId(markets.get(0).getLeagueId());
-            return new ResponseEntity<>(marketUpdated, HttpStatus.OK);
-        } catch (Exception e) {
-            throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-    }
+            List<Market> markets = marketRepository.findMarketByLeagueId(leagueId);
 
-    public ResponseEntity<List<Market>> findMarketByLeagueWithJokerActive(String league) {
-        try {
-            List<Market> markets = marketRepository.findMarketByLeagueId(league);
             if (markets.isEmpty()) {
-                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Keine Aktien gefunden fuer diese Liga");
+                throw new CustomErrorException(HttpStatus.NO_CONTENT, "There are no stocks in this league");
             }
-            List<Market> marketJoker = new ArrayList<Market>();
-            for( int i=0; i<markets.size(); i++ ){
-                if (markets.get(i).getJokerActive()){
-                    marketJoker.add(markets.get(i));
+
+            List<Market> marketJoker = new ArrayList<>();
+            for (Market market : markets) {
+                if (market.getJokerActive()) {
+                    marketJoker.add(market);
                 }
             }
-            marketJoker = updateCurrentPrices(marketJoker).getBody();
+            marketJoker = updateCurrentPrices(marketJoker, leagueId);
             return new ResponseEntity<>(marketJoker, HttpStatus.OK);
         }catch (Exception e){
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
-    public ResponseEntity<Market> addSymbolToMarket(String league, String symbol, String stockName, BigDecimal current_value, Timestamp date_entered, Timestamp date_left) {
+    public ResponseEntity<Market> updateJoker(String leagueId, UpdateJoker updateJoker) {
         try {
-            Market market = marketRepository.save(new Market(league, symbol, stockName, current_value, date_entered, date_left, false));
-            return new ResponseEntity<>(market, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    public ResponseEntity<Market> updateJoker(String leagueid, UpdateJoker updateJoker) {
-        try {
-            String userid = updateJoker.getUserid();
+            String userId = updateJoker.getUserId();
             String symbol = updateJoker.getSymbol();
-            //check whether the user has jokers available
-            Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findByLeagueIdAndUserId(leagueid, userid);
+
+            // Check if the user has an unused joker left
+            Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findByLeagueIdAndUserId(leagueId, userId);
+
             if (userByLeagueOptional.isEmpty()) {
-                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User konnte in dieser Liga nicht gefunden werden");
+                throw new CustomErrorException(HttpStatus.NO_CONTENT, "User could not be found in this league");
             }
+
             UserByLeague userByLeague = userByLeagueOptional.get();
-            Integer jokerAmount = 0;
+            int jokerAmount = 0;
             String jokerToActivate = "1";
+
             if (userByLeague.getJoker1()==Boolean.FALSE){ jokerAmount++; jokerToActivate = "1";}
             if (userByLeague.getJoker2()==Boolean.FALSE){ jokerAmount++; jokerToActivate = "2";}
             if (userByLeague.getJoker3()==Boolean.FALSE){ jokerAmount++; jokerToActivate = "3";}
             if (jokerAmount > 0) {
-                //update market for symbol: set joker FALSE -> TRUE
-                Market market = marketRepository.findMarketByLeagueIdAndSymbol(leagueid, symbol).get();
+
+                // Update joker to true in market
+                Optional<Market> marketOptional = marketRepository.findMarketByLeagueIdAndSymbol(leagueId, symbol);
+
+                if (marketOptional.isEmpty()) {
+                    throw new CustomErrorException(HttpStatus.CONFLICT, "This league does not have a market yet");
+                }
+
+                Market market = marketOptional.get();
+                if (market.getJokerActive()) {
+                    throw new CustomErrorException(HttpStatus.CONFLICT, "Another user already activated a joker for this stock");
+                }
                 market.setJokerActive(true);
                 market = marketRepository.save(market);
-                //update userByLeague for user: set one joker FALSE -> TRUE
-                if (jokerToActivate == "1") {
-                    userByLeague.setJoker1(true);
-                } else if (jokerToActivate == "2") {
-                    userByLeague.setJoker2(true);
-                } else {
-                    userByLeague.setJoker3(true);
+
+                // Update userByLeague for user: set one joker FALSE -> TRUE
+                switch (jokerToActivate) {
+                    case "1":
+                        userByLeague.setJoker1(true);
+                        break;
+                    case "2":
+                        userByLeague.setJoker2(true);
+                        break;
+                    case "3":
+                        userByLeague.setJoker3(true);
+                        break;
+                    default:
+                        throw new CustomErrorException(
+                                HttpStatus.CONFLICT,
+                                "Something went wrong trying to activate a joker for stock " + symbol + " with user " + userId);
                 }
                 userByLeagueRepository.save(userByLeague);
-                //return symbol in Market with updated Joker
+
                 return new ResponseEntity<>(market, HttpStatus.CREATED);
             } else {
-                throw new CustomErrorException(HttpStatus.CONFLICT, "Der User hat keine Joker übrig");
+                throw new CustomErrorException(HttpStatus.CONFLICT, "This user does not have an unused joker left");
             }
         }catch (Exception e) {
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
+    /*
+    Helper methods
+     */
 
-    //-------------  MarketRefresh ------------
-    public void marketRefresh(String leagueid){
-        Optional<League> leagueSettings = leagueRepository.findLeagueByLeagueId(leagueid);
+    public void marketRefresh(String leagueId){
+        Optional<League> leagueSettings = leagueRepository.findLeagueByLeagueId(leagueId);
+
         if (leagueSettings.isPresent()){
             try {
-                System.out.println("Eintritt Methode marketRefresh");
+
+                System.out.println("Market refresh starting...");
+
                 // Get stocks in current market which are marked with a joker, so that they can be transferred into the next market
-                List<Market> markets = marketRepository.findMarketByLeagueId(leagueid);
-                List<Market> marketActivatedJoker = new ArrayList<Market>();
+                List<Market> markets = marketRepository.findMarketByLeagueId(leagueId);
+                List<Market> marketActivatedJoker = new ArrayList<>();
+
                 if (!markets.isEmpty()) {
-                    for( int i=0; i<markets.size(); i++ ){
-                        if (markets.get(i).getJokerActive()){
-                            marketActivatedJoker.add(markets.get(i));
+                    for (Market market : markets) {
+                        if (market.getJokerActive()) {
+                            marketActivatedJoker.add(market);
                         }
                     }
                 }
@@ -162,7 +173,7 @@ public class MarketService {
                 double amountStockPerSector = Math.floor(amountStocksInLeague*marketProbability.get(keys.iterator().next()));
                 double amountStockRandom = amountStocksInLeague-amountStockPerSector*keys.size();
 
-                // set timestamps ------
+                // Set timestamps ------
                 Timestamp tsNow = new Timestamp(System.currentTimeMillis());
                 if (!markets.isEmpty()){
                     tsNow = markets.iterator().next().getDateLeft();
@@ -171,7 +182,8 @@ public class MarketService {
                 cal.setTime(tsNow);
                 cal.add(Calendar.DAY_OF_WEEK, 14);
                 Timestamp ts14 = new Timestamp(cal.getTime().getTime());
-                //if dateLeft is older than current timestamp, than tsNow equals current timestamp
+
+                // If dateLeft is older than current timestamp, than tsNow equals current timestamp
                 if (ts14.before(new Timestamp(System.currentTimeMillis()))){
                     tsNow = new Timestamp(System.currentTimeMillis());
                     cal.setTime(tsNow);
@@ -180,57 +192,91 @@ public class MarketService {
                 }
 
                 // Delete old market
-                marketRepository.deleteMarketByLeagueId(leagueid);
+                marketRepository.deleteMarketByLeagueId(leagueId);
 
                 //Add stocks to market
                 //Add the same amount of stocks from each sector selected in league-settings
-                List<String> arraySymbols = new ArrayList<String>();
+                List<String> arraySymbols = new ArrayList<>();
                 for (String key : keys) {
                     // Get random symbols from table stocks
                     List<Stock> stocksSector1= pickNRandom(stockRepository.findStocksBySectorEquals(key), (int) amountStockPerSector);
                     // Add symbols to market
                     for ( int i=0; i<amountStockPerSector; i++){
-                        addSymbolToMarket(leagueid, stocksSector1.get(i).getSymbol(), stocksSector1.get(i).getStockName(), stocksSector1.get(i).getCurrentPrice(), tsNow, ts14);
+                        addSymbolToMarket(leagueId, stocksSector1.get(i).getSymbol(), stocksSector1.get(i).getStockName(), stocksSector1.get(i).getCurrentPrice(), tsNow, ts14);
                         arraySymbols.add(stocksSector1.get(i).getSymbol());
                     }
                 }
                 //Add the stocks which have been marked with a joker in the last market
-                for ( int i=0; i<marketActivatedJoker.size(); i++){
-                    addSymbolToMarket(leagueid, marketActivatedJoker.get(i).getSymbol(), marketActivatedJoker.get(i).getStockName(), marketActivatedJoker.get(i).getCurrentValue(), tsNow, ts14);
-                    arraySymbols.add(marketActivatedJoker.get(i).getSymbol());
+                for (Market market : marketActivatedJoker) {
+                    addSymbolToMarket(leagueId, market.getSymbol(), market.getStockName(), market.getCurrentValue(), tsNow, ts14);
+                    arraySymbols.add(market.getSymbol());
                 }
-                //Add the missing stocks (there is a amount of stocks declared in the market settings)
+
+                //Add the missing stocks (there is an amount of stocks declared in the market settings)
                 // convert HashSet to an array
                 String[] arrayKeys = keys.toArray(new String[keys.size()]);
                 for ( int i=0; i<amountStockRandom; i++){
                     // generate a random number
-                    Random rndm = new Random();
+                    Random random = new Random();
                     // this will generate a random number between 0 and HashSet.size - 1
-                    int rndmNumber = rndm.nextInt(keys.size());
-                    List<Stock> randomSectorStockList = stockRepository.findStocksBySectorEquals(arrayKeys[rndmNumber]);
+                    int randomNumber = random.nextInt(keys.size());
+                    List<Stock> randomSectorStockList = stockRepository.findStocksBySectorEquals(arrayKeys[randomNumber]);
                     // get one stock from random (but in league-settings selected) sector
-                    Boolean stockNotYetIncluded = Boolean.FALSE;
+                    boolean stockNotYetIncluded = Boolean.FALSE;
                     while (!stockNotYetIncluded) {
                         List<Stock> stocksSector2 = pickNRandom(randomSectorStockList, 1);
                         if (!arraySymbols.contains(stocksSector2.get(0).getSymbol())) {
-                            addSymbolToMarket(leagueid, stocksSector2.get(i).getSymbol(), stocksSector2.get(i).getStockName(), stocksSector2.get(i).getCurrentPrice(), tsNow, ts14);
+                            addSymbolToMarket(leagueId, stocksSector2.get(0).getSymbol(), stocksSector2.get(0).getStockName(), stocksSector2.get(0).getCurrentPrice(), tsNow, ts14);
                             stockNotYetIncluded=Boolean.TRUE;
                         }
                     }
                 }
             }catch (Exception e) {
-                System.out.println("Error");
+                throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
             }
+        } else {
+            throw new CustomErrorException(HttpStatus.NO_CONTENT, "This id matches no league");
         }
-
     }
 
-    /*
-    Helper classes
-     */
+    private List<Market> updateCurrentPrices(List<Market> markets, String leagueId) {
+        try {
+            for (Market value : markets) {
+                Optional<Market> marketOptional = marketRepository.findMarketByLeagueIdAndSymbol(
+                        value.getLeagueId(),
+                        value.getSymbol()
+                );
+                Optional<Stock> stockOptional = stockRepository.findStockBySymbol(value.getSymbol());
+
+                if (marketOptional.isPresent() && stockOptional.isPresent()) {
+                    Market market = marketOptional.get();
+                    Stock stock = stockOptional.get();
+                    market.setCurrentValue(stock.getCurrentPrice());
+                } else {
+                    throw new CustomErrorException(
+                            HttpStatus.NO_CONTENT,
+                            "Market id or symbol is wrong");
+                }
+            }
+            return marketRepository.findMarketByLeagueId(leagueId);
+        } catch (Exception e) {
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    public void addSymbolToMarket(String league, String symbol, String stockName, BigDecimal current_value,
+            Timestamp date_entered, Timestamp date_left
+    ) {
+        try {
+            marketRepository.save(new Market(league, symbol, stockName, current_value, date_entered, date_left,
+                    false));
+        } catch (Exception e) {
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
 
     public static List<Stock> pickNRandom(List<Stock> lst, int n) {
-        List<Stock> copy = new ArrayList<Stock>(lst);
+        List<Stock> copy = new ArrayList<>(lst);
         Collections.shuffle(copy);
         return n > copy.size() ? copy.subList(0, copy.size()) : copy.subList(0, n);
     }
