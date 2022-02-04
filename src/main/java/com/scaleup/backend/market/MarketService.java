@@ -34,15 +34,15 @@ public class MarketService {
         try {
             Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueId(league);
             if (leagueOptional.isPresent()){
-                List<Market> markets = marketRepository.findMarketByLeagueid(league);
+                List<Market> markets = marketRepository.findMarketByLeagueId(league);
                 if (markets.isEmpty()) {
                     System.out.println("markt ist leer -> marketrefresh");
                     marketRefresh(league);
-                    markets = marketRepository.findMarketByLeagueid(league);
-                } else if (markets.iterator().next().getDate_left().before(new Timestamp(System.currentTimeMillis()))){
+                    markets = marketRepository.findMarketByLeagueId(league);
+                } else if (markets.iterator().next().getDateLeft().before(new Timestamp(System.currentTimeMillis()))){
                     System.out.println("markt hat veraltete Einträge -> marketrefresh");
                     marketRefresh(league);
-                    markets = marketRepository.findMarketByLeagueid(league);
+                    markets = marketRepository.findMarketByLeagueId(league);
                 } else {
                     markets = updateCurrentPrices(markets).getBody();
                 }
@@ -51,7 +51,6 @@ public class MarketService {
                 throw new CustomErrorException(HttpStatus.NO_CONTENT, "Es konnte keine Liga mit dieser leagueId gefunden werden");
             }
         }catch (Exception e){
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -59,11 +58,11 @@ public class MarketService {
     private ResponseEntity<List<Market>> updateCurrentPrices(List<Market> markets) {
         try {
             for( int i=0; i<markets.size(); i++ ){
-                Market market = marketRepository.findMarketByLeagueidAndSymbolEquals(markets.get(i).getLeagueid(), markets.get(i).getSymbol()).get();
-                market.setCurrent_value(stockRepository.findStockBySymbol(markets.get(i).getSymbol()).get().getCurrentPrice());
+                Market market = marketRepository.findMarketByLeagueIdAndSymbol(markets.get(i).getLeagueId(), markets.get(i).getSymbol()).get();
+                market.setCurrentValue(stockRepository.findStockBySymbol(markets.get(i).getSymbol()).get().getCurrentPrice());
                 marketRepository.save(market);
             }
-            List<Market> marketUpdated = marketRepository.findMarketByLeagueid(markets.get(0).getLeagueid());
+            List<Market> marketUpdated = marketRepository.findMarketByLeagueId(markets.get(0).getLeagueId());
             return new ResponseEntity<>(marketUpdated, HttpStatus.OK);
         } catch (Exception e) {
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
@@ -72,13 +71,13 @@ public class MarketService {
 
     public ResponseEntity<List<Market>> findMarketByLeagueWithJokerActive(String league) {
         try {
-            List<Market> markets = marketRepository.findMarketByLeagueid(league);
+            List<Market> markets = marketRepository.findMarketByLeagueId(league);
             if (markets.isEmpty()) {
                 throw new CustomErrorException(HttpStatus.NO_CONTENT, "Keine Aktien gefunden fuer diese Liga");
             }
             List<Market> marketJoker = new ArrayList<Market>();
             for( int i=0; i<markets.size(); i++ ){
-                if (markets.get(i).getJoker_active()){
+                if (markets.get(i).getJokerActive()){
                     marketJoker.add(markets.get(i));
                 }
             }
@@ -90,12 +89,11 @@ public class MarketService {
         }
     }
 
-    public ResponseEntity<Market> addSymbolToMarket(String league, String symbol, BigDecimal current_value, Timestamp date_entered, Timestamp date_left) {
+    public ResponseEntity<Market> addSymbolToMarket(String league, String symbol, String stockName, BigDecimal current_value, Timestamp date_entered, Timestamp date_left) {
         try {
-            Market market = marketRepository.save(new Market(league, symbol, current_value, date_entered, date_left, false));
+            Market market = marketRepository.save(new Market(league, symbol, stockName, current_value, date_entered, date_left, false));
             return new ResponseEntity<>(market, HttpStatus.CREATED);
         } catch (Exception e) {
-            // TODO: Implement logging of errors
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -117,8 +115,8 @@ public class MarketService {
             if (userByLeague.getJoker3()==Boolean.FALSE){ jokerAmount++; jokerToActivate = "3";}
             if (jokerAmount > 0) {
                 //update market for symbol: set joker FALSE -> TRUE
-                Market market = marketRepository.findMarketByLeagueidAndSymbolEquals(leagueid, symbol).get();
-                market.setJoker_active(true);
+                Market market = marketRepository.findMarketByLeagueIdAndSymbol(leagueid, symbol).get();
+                market.setJokerActive(true);
                 market = marketRepository.save(market);
                 //update userByLeague for user: set one joker FALSE -> TRUE
                 if (jokerToActivate == "1") {
@@ -135,7 +133,6 @@ public class MarketService {
                 throw new CustomErrorException(HttpStatus.CONFLICT, "Der User hat keine Joker übrig");
             }
         }catch (Exception e) {
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -148,11 +145,11 @@ public class MarketService {
             try {
                 System.out.println("Eintritt Methode marketRefresh");
                 // Get stocks in current market which are marked with a joker, so that they can be transferred into the next market
-                List<Market> markets = marketRepository.findMarketByLeagueid(leagueid);
+                List<Market> markets = marketRepository.findMarketByLeagueId(leagueid);
                 List<Market> marketActivatedJoker = new ArrayList<Market>();
                 if (!markets.isEmpty()) {
                     for( int i=0; i<markets.size(); i++ ){
-                        if (markets.get(i).getJoker_active()){
+                        if (markets.get(i).getJokerActive()){
                             marketActivatedJoker.add(markets.get(i));
                         }
                     }
@@ -168,13 +165,13 @@ public class MarketService {
                 // set timestamps ------
                 Timestamp tsNow = new Timestamp(System.currentTimeMillis());
                 if (!markets.isEmpty()){
-                    tsNow = markets.iterator().next().getDate_left();
+                    tsNow = markets.iterator().next().getDateLeft();
                 }
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(tsNow);
                 cal.add(Calendar.DAY_OF_WEEK, 14);
                 Timestamp ts14 = new Timestamp(cal.getTime().getTime());
-                //if date_left is older than current timestamp, than tsNow equals current timestamp
+                //if dateLeft is older than current timestamp, than tsNow equals current timestamp
                 if (ts14.before(new Timestamp(System.currentTimeMillis()))){
                     tsNow = new Timestamp(System.currentTimeMillis());
                     cal.setTime(tsNow);
@@ -183,7 +180,7 @@ public class MarketService {
                 }
 
                 // Delete old market
-                marketRepository.deleteMarketsByLeagueidEquals(leagueid);
+                marketRepository.deleteMarketByLeagueId(leagueid);
 
                 //Add stocks to market
                 //Add the same amount of stocks from each sector selected in league-settings
@@ -193,13 +190,13 @@ public class MarketService {
                     List<Stock> stocksSector1= pickNRandom(stockRepository.findStocksBySectorEquals(key), (int) amountStockPerSector);
                     // Add symbols to market
                     for ( int i=0; i<amountStockPerSector; i++){
-                        addSymbolToMarket(leagueid, stocksSector1.get(i).getSymbol(), stocksSector1.get(i).getCurrentPrice(), tsNow, ts14);
+                        addSymbolToMarket(leagueid, stocksSector1.get(i).getSymbol(), stocksSector1.get(i).getStockName(), stocksSector1.get(i).getCurrentPrice(), tsNow, ts14);
                         arraySymbols.add(stocksSector1.get(i).getSymbol());
                     }
                 }
                 //Add the stocks which have been marked with a joker in the last market
                 for ( int i=0; i<marketActivatedJoker.size(); i++){
-                    addSymbolToMarket(leagueid, marketActivatedJoker.get(i).getSymbol(), marketActivatedJoker.get(i).getCurrent_value(), tsNow, ts14);
+                    addSymbolToMarket(leagueid, marketActivatedJoker.get(i).getSymbol(), marketActivatedJoker.get(i).getStockName(), marketActivatedJoker.get(i).getCurrentValue(), tsNow, ts14);
                     arraySymbols.add(marketActivatedJoker.get(i).getSymbol());
                 }
                 //Add the missing stocks (there is a amount of stocks declared in the market settings)
@@ -216,19 +213,22 @@ public class MarketService {
                     while (!stockNotYetIncluded) {
                         List<Stock> stocksSector2 = pickNRandom(randomSectorStockList, 1);
                         if (!arraySymbols.contains(stocksSector2.get(0).getSymbol())) {
-                            addSymbolToMarket(leagueid, stocksSector2.get(i).getSymbol(), stocksSector2.get(i).getCurrentPrice(), tsNow, ts14);
+                            addSymbolToMarket(leagueid, stocksSector2.get(i).getSymbol(), stocksSector2.get(i).getStockName(), stocksSector2.get(i).getCurrentPrice(), tsNow, ts14);
                             stockNotYetIncluded=Boolean.TRUE;
                         }
                     }
                 }
             }catch (Exception e) {
-                System.out.println("Fehler");
+                throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
             }
         }
 
     }
 
-    //helperclass: pick n random Stocks from specific sector (sector is defined in methodcall)
+    /*
+    Helper classes
+     */
+
     public static List<Stock> pickNRandom(List<Stock> lst, int n) {
         List<Stock> copy = new ArrayList<Stock>(lst);
         Collections.shuffle(copy);

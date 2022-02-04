@@ -1,4 +1,4 @@
-package com.scaleup.backend.market;
+package com.scaleup.backend.stocksByUser;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -11,30 +11,30 @@ import org.springframework.data.cassandra.core.mapping.Table;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-@Table("markets_v1")
+@Table("stocks_by_user_and_league")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Market {
+public class UserStock {
 
     @PrimaryKeyColumn(name="league_id", ordinal=0, type=PrimaryKeyType.PARTITIONED)
     private String leagueId;
 
-    @PrimaryKeyColumn(name="symbol", ordinal=1, type=PrimaryKeyType.CLUSTERED)
+    @PrimaryKeyColumn(name="user_id", ordinal=1, type=PrimaryKeyType.PARTITIONED)
+    private String userId;
+
+    @PrimaryKeyColumn(name="symbol", ordinal=2, type=PrimaryKeyType.CLUSTERED)
     private String symbol;
 
-    @Column
+    @Column("stock_name")
     private String stockName;
 
-    @Column("currentValue")
-    private BigDecimal currentValue;
+    @Column("timeLastUpdated")
+    private Timestamp timeLastUpdated;
 
-    @Column("dateEntered")
-    private Timestamp dateEntered;
+    @Column("amount")
+    private Integer amount;
 
-    @Column("dateLeft")
-    private Timestamp dateLeft;
-
-    @Column("jokerActive")
-    private Boolean jokerActive;
+    @Column("valueWhenBought")
+    private BigDecimal valueWhenBought;
 }

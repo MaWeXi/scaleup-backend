@@ -11,7 +11,7 @@ import java.util.List;
 public class StockDTO {
 
     private String symbol;
-    private String name;
+    private String stockName;
     private String isin;
     private String wkn;
     private Timestamp lastUpdated;

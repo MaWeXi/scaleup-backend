@@ -17,6 +17,7 @@ public class LeagueController {
         this.leagueService = leagueService;
     }
 
+    // Only for development purposes
     @GetMapping("/league/all")
     public ResponseEntity<List<League>> getLeagues() {
         return leagueService.getAllLeagues();

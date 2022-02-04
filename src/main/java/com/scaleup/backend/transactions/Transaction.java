@@ -16,7 +16,7 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Transaction {
-    // leagueId, year, userId, timestamp, symbol, singleStockValue, amount, typeOfTransaction
+
     @PrimaryKeyColumn(name = "leagueId", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private String leagueId;
 
@@ -32,6 +32,9 @@ public class Transaction {
     @PrimaryKeyColumn(name = "symbol", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
     private String symbol;
 
+    @Column("name")
+    private String stockName;
+
     @Column("username")
     private String username;
 
@@ -39,7 +42,7 @@ public class Transaction {
     private BigDecimal singleStockValue;
 
     @Column("amount")
-    private Float amount;
+    private Integer amount;
 
     //Buy or Sell
     @Column("typeOfTransaction")

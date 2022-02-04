@@ -22,17 +22,15 @@ public class TransactionService {
     public ResponseEntity<List<TransactionDTO>> getTransactionsWholeLeague(String leagueId) {
 
         try {
-            List<TransactionDTO> transactionDTOList = transactionRepository.findAllByLeagueIdEquals(leagueId).stream().map(transaction ->
-            {
-                TransactionDTO transactionDTO = new TransactionDTO();
-                transactionDTO.setUsername(transaction.getUsername());
-                transactionDTO.setTimestamp(transaction.getTimestampTransaction());
-                transactionDTO.setSymbol(transaction.getSymbol());
-                transactionDTO.setSingleStockValue(transaction.getSingleStockValue());
-                transactionDTO.setAmount(transaction.getAmount());
-                transactionDTO.setTypeOfTransaction(transaction.getTypeOfTransaction());
-                return transactionDTO;
-            }).collect(Collectors.toList());
+            List<TransactionDTO> transactionDTOList = transactionRepository.findTransactionByLeagueId(leagueId).stream().map(transaction ->
+                    new TransactionDTO(
+                    transaction.getUsername(),
+                    transaction.getTimestampTransaction(),
+                    transaction.getSymbol(),
+                    transaction.getStockName(),
+                    transaction.getSingleStockValue(),
+                    transaction.getAmount(),
+                    transaction.getTypeOfTransaction())).collect(Collectors.toList());
             return new ResponseEntity<>(transactionDTOList, HttpStatus.OK);
         } catch (Exception e) {
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());

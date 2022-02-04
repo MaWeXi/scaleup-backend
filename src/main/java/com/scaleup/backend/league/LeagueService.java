@@ -19,6 +19,8 @@ import java.util.*;
 @Service
 public class LeagueService {
 
+    String SALT_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+
     final LeagueRepository leagueRepository;
     final UserRepository userRepository;
     final UserByLeagueRepository userByLeagueRepository;
@@ -42,8 +44,6 @@ public class LeagueService {
             }
             return new ResponseEntity<>(leagues, HttpStatus.OK);
         } catch (Exception e) {
-
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -55,8 +55,6 @@ public class LeagueService {
             try {
                 return new ResponseEntity<>(leagueOptional.get(), HttpStatus.OK);
             } catch (Exception e) {
-
-                // TODO: Implement logging of errors
                 throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), leagueId);
             }
         } else {
@@ -123,8 +121,6 @@ public class LeagueService {
 
                 return new ResponseEntity<>(_league, HttpStatus.CREATED);
             } catch (Exception e) {
-
-                // TODO: Implement logging of errors
                 throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), leagueDTO);
             }
         } else {
@@ -133,22 +129,6 @@ public class LeagueService {
                     leagueDTO);
         }
     }
-
-    // ----------------------------------- Helperclass -----------------------------------
-
-    protected String getUniqueString() {
-        String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        StringBuilder salt = new StringBuilder();
-        Random rnd = new Random();
-        while (salt.length() < 6) { // length of the random string.
-            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
-            salt.append(SALTCHARS.charAt(index));
-        }
-        String saltStr = salt.toString();
-        return saltStr;
-    }
-
-    // -----------------------------------------------------------------------------------
 
     public ResponseEntity<List<LeaderboardUserDTO>> getLeaderboardByLeagueId(String leagueId) {
         Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueId(leagueId);
@@ -177,5 +157,19 @@ public class LeagueService {
         } else {
             throw new CustomErrorException(HttpStatus.NOT_FOUND, "League could not be found under this id", leagueId);
         }
+    }
+
+    /*
+    Helper classes
+     */
+
+    protected String getUniqueString() {
+        StringBuilder salt = new StringBuilder();
+        Random rnd = new Random();
+        while (salt.length() < 6) { // length of the random string.
+            int index = (int) (rnd.nextFloat() * SALT_CHARS.length());
+            salt.append(SALT_CHARS.charAt(index));
+        }
+        return salt.toString();
     }
 }

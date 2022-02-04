@@ -11,8 +11,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class StockSell {
 
-    private String userid;
-    private String leagueid;
+    private String userId;
+    private String leagueId;
     private String symbol;
     private BigDecimal askPrice;
     private Integer amount;

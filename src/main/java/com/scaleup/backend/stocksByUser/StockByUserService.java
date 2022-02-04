@@ -34,8 +34,8 @@ public class StockByUserService {
     }
 
     public ResponseEntity<StockByUser> buyStock(StockBuy stockBuy) {
-        String leagueid = stockBuy.getLeagueid();
-        String userid = stockBuy.getUserid();
+        String leagueid = stockBuy.getLeagueId();
+        String userid = stockBuy.getUserId();
         String symbol = stockBuy.getSymbol();
         Integer amount = stockBuy.getAmount();
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -76,7 +76,7 @@ public class StockByUserService {
                 transaction.setUserId(userid);
                 transaction.setSymbol(symbol);
                 transaction.setUsername(userByLeague.get().getUsername());
-                transaction.setAmount(amount.floatValue());
+                transaction.setAmount(amount);
                 transaction.setTypeOfTransaction("buy");
                 transaction.setYear(timestamp.getYear());
                 transaction.setTimestampTransaction(timestamp);
@@ -88,9 +88,9 @@ public class StockByUserService {
                 BigDecimal freeBudget = userByLeagueUpdate.getFreeBudget();
                 freeBudget = freeBudget.subtract(BigDecimal.valueOf(amount).multiply(askPrice));
                 userByLeagueUpdate.setFreeBudget(freeBudget);
-                BigDecimal portfolioValue = userByLeagueUpdate.getPortfolio_value();
+                BigDecimal portfolioValue = userByLeagueUpdate.getPortfolioValue();
                 portfolioValue = portfolioValue.add(BigDecimal.valueOf(amount).multiply(askPrice));
-                userByLeagueUpdate.setPortfolio_value(portfolioValue);
+                userByLeagueUpdate.setPortfolioValue(portfolioValue);
                 userByLeagueRepository.save(userByLeagueUpdate);
             } else {
                 throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User oder die Aktie existieren nicht oder der User hat zu wenig Geld");
@@ -103,8 +103,8 @@ public class StockByUserService {
     }
 
     public ResponseEntity<StockByUser> sellStock(StockSell stockSell) {
-        String leagueid = stockSell.getLeagueid();
-        String userid = stockSell.getUserid();
+        String leagueid = stockSell.getLeagueId();
+        String userid = stockSell.getUserId();
         String symbol = stockSell.getSymbol();
         Integer amount = stockSell.getAmount();
         Timestamp timestamp = new Timestamp(System.currentTimeMillis());
@@ -148,7 +148,7 @@ public class StockByUserService {
                 transaction.setUserId(userid);
                 transaction.setSymbol(symbol);
                 transaction.setUsername(userByLeague.get().getUsername());
-                transaction.setAmount(amount.floatValue());
+                transaction.setAmount(amount);
                 transaction.setTypeOfTransaction("sell");
                 transaction.setYear(timestamp.getYear());
                 transaction.setTimestampTransaction(timestamp);
@@ -160,9 +160,9 @@ public class StockByUserService {
                 BigDecimal budget = userByLeagueUpdate.getFreeBudget();
                 budget = budget.add(BigDecimal.valueOf(amount).multiply(bidPrice));
                 userByLeagueUpdate.setFreeBudget(budget);
-                BigDecimal portfolioValue = userByLeagueUpdate.getPortfolio_value();
+                BigDecimal portfolioValue = userByLeagueUpdate.getPortfolioValue();
                 portfolioValue = portfolioValue.subtract(BigDecimal.valueOf(amount).multiply(bidPrice));
-                userByLeagueUpdate.setPortfolio_value(portfolioValue);
+                userByLeagueUpdate.setPortfolioValue(portfolioValue);
                 userByLeagueRepository.save(userByLeagueUpdate);
             } else {
                 throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User oder die Aktie existieren nicht oder der User hat zu wenig Geld");

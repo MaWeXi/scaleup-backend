@@ -21,7 +21,7 @@ public class Stock implements Serializable {
     private String symbol;
 
     @Column("name")
-    private String name;
+    private String stockName;
 
     @Column("isin")
     private String isin;
