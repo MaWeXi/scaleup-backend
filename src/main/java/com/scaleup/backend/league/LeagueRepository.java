@@ -16,7 +16,4 @@ public interface LeagueRepository extends CassandraRepository<League, String> {
 
     @AllowFiltering
     Optional<League> findLeagueByLeagueIdEqualsAndLeagueCodeEquals(String leagueId, String leagueCode);
-
-    @AllowFiltering
-    Optional<League> findLeagueByLeagueCode(String leagueCode);
 }

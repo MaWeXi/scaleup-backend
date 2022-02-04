@@ -12,4 +12,6 @@ public interface UserStockRepository extends CassandraRepository<UserStock, Stri
     List<UserStock> findUserStocksByLeagueIdAndUserId(String leagueId, String userId);
 
     Optional<UserStock> findUserStockByLeagueIdAndUserIdAndSymbol(String leagueId, String userId, String symbol);
+
+    void deleteUserStockByLeagueIdAndUserIdAndSymbol(String leagueId, String userId, String symbol);
 }

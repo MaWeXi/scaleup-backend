@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
@@ -92,7 +93,7 @@ public class UserStockService {
                     // Create a new Transaction object and store in DB
                     transactionRepository.save(new Transaction(
                             leagueId,
-                            timestamp.getYear(),
+                            LocalDate.now().getYear(),
                             userId,
                             timestamp,
                             symbol,
@@ -106,6 +107,7 @@ public class UserStockService {
                     // Update the portfolioValue and the freeBudget of the user in UserByLeague
                     user.setFreeBudget(freeBudget.subtract(buyCost));
                     user.setPortfolioValue(user.getPortfolioValue().add(buyCost));
+                    userByLeagueRepository.save(user);
 
                     return new ResponseEntity<>(_userStock, HttpStatus.OK);
                 } else {
@@ -146,38 +148,52 @@ public class UserStockService {
 
                 if (userStockOptional.isPresent()) {
                     UserStock userStock = userStockOptional.get();
+                    UserStock _userStock;
 
-                    if (userStock.getAmount() >= amount) {
+                    if (userStock.getAmount() > amount) {
                         userStock.setAmount(userStock.getAmount() - amount);
                         userStock.setTimeLastUpdated(timestamp);
 
                         // Save updated UserStock object
-                        UserStock _userStock = userStockRepository.save(userStock);
+                        _userStock = userStockRepository.save(userStock);
 
-                        // Create a new Transaction object and store in DB
-                        transactionRepository.save(new Transaction(
-                                leagueId,
-                                timestamp.getYear(),
-                                userId,
-                                timestamp,
-                                symbol,
-                                stock.getStockName(),
-                                user.getUsername(),
-                                stock.getBidPrice(),
-                                amount,
-                                "sell"
-                        ));
+                    }
 
-                        // Update the portfolioValue and the freeBudget of the user in UserByLeague
-                        user.setFreeBudget(freeBudget.add(sellCost));
-                        user.setPortfolioValue(user.getPortfolioValue().subtract(sellCost));
+                    // Delete stock completely if amount equals zero
+                    else if (userStock.getAmount().equals(amount)) {
 
-                        return new ResponseEntity<>(_userStock, HttpStatus.OK);
+                        userStockRepository.deleteUserStockByLeagueIdAndUserIdAndSymbol(leagueId, userId, symbol);
+                        userStock.setAmount(userStock.getAmount() - amount);
+                        userStock.setTimeLastUpdated(timestamp);
+                        _userStock = userStock;
+
                     } else {
                         throw new CustomErrorException(
                                 HttpStatus.CONFLICT,
                                 "This user does not have enough of this stock to sell this amount");
                     }
+
+                    // Create a new Transaction object and store in DB
+                    transactionRepository.save(new Transaction(
+                            leagueId,
+                            LocalDate.now().getYear(),
+                            userId,
+                            timestamp,
+                            symbol,
+                            stock.getStockName(),
+                            user.getUsername(),
+                            stock.getAskPrice(),
+                            amount,
+                            "sell"
+                    ));
+
+                    // Update the portfolioValue and the freeBudget of the user in UserByLeague
+                    user.setFreeBudget(freeBudget.add(sellCost));
+                    user.setPortfolioValue(user.getPortfolioValue().subtract(sellCost));
+                    userByLeagueRepository.save(user);
+
+                    return new ResponseEntity<>(_userStock, HttpStatus.OK);
+
                 } else {
                     throw new CustomErrorException(HttpStatus.CONFLICT,  "This user does not own this stock");
                 }

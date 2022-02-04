@@ -17,9 +17,8 @@ public class TransactionController {
         this.transactionService = transactionService;
     }
 
-    // Get all transactions of all users inside a league
     @GetMapping("/transactions/league/all/{leagueId}")
     public ResponseEntity<List<TransactionDTO>> getTransaction(@PathVariable String leagueId) {
-        return transactionService.getTransactionsWholeLeague(leagueId);
+        return transactionService.getTransactionsByLeague(leagueId);
     }
 }

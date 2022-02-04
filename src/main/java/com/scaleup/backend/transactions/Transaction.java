@@ -11,7 +11,7 @@ import org.springframework.data.cassandra.core.mapping.Table;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-@Table("transactions")
+@Table("transaction_v1")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

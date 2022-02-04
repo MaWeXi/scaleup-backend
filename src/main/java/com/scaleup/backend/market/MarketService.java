@@ -219,7 +219,7 @@ public class MarketService {
                     }
                 }
             }catch (Exception e) {
-                throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
+                System.out.println("Error");
             }
         }
 

@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,10 +20,13 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public ResponseEntity<List<TransactionDTO>> getTransactionsWholeLeague(String leagueId) {
+    public ResponseEntity<List<TransactionDTO>> getTransactionsByLeague(String leagueId) {
 
         try {
-            List<TransactionDTO> transactionDTOList = transactionRepository.findTransactionByLeagueId(leagueId).stream().map(transaction ->
+            List<TransactionDTO> transactionDTOList = transactionRepository.findTransactionByLeagueIdAndYear(
+                    leagueId,
+                    LocalDate.now().getYear()
+            ).stream().map(transaction ->
                     new TransactionDTO(
                     transaction.getUsername(),
                     transaction.getTimestampTransaction(),

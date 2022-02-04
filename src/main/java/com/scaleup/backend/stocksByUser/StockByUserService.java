@@ -42,7 +42,7 @@ public class StockByUserService {
         try {
             Optional<StockByUser> stockByUser = stockByUserRepository.findAllByLeagueIdEqualsAndUserIdEqualsAndSymbolEquals(leagueid, userid, symbol);
             Optional<Stock> stock = stockRepository.findStockBySymbol(symbol);
-            Optional<UserByLeague> userByLeague = userByLeagueRepository.findAllByLeagueIdEqualsAndUserIdEquals(leagueid, userid);
+            Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueid, userid);
             StockByUser stockByUserReturn = new StockByUser();
 
             //check whether user and stock exist and if user has enough freeBudget to buy the amount of stock
@@ -111,7 +111,7 @@ public class StockByUserService {
         try {
             Optional<StockByUser> stockByUser = stockByUserRepository.findAllByLeagueIdEqualsAndUserIdEqualsAndSymbolEquals(leagueid, userid, symbol);
             Optional<Stock> stock = stockRepository.findStockBySymbol(symbol);
-            Optional<UserByLeague> userByLeague = userByLeagueRepository.findAllByLeagueIdEqualsAndUserIdEquals(leagueid, userid);
+            Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueid, userid);
             StockByUser stockByUserReturn = new StockByUser();
 
             //check whether user and stock exist

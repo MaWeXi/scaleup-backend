@@ -41,8 +41,6 @@ public class UserService {
             }
             return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e) {
-
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -54,8 +52,6 @@ public class UserService {
             try {
                 return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
             } catch (Exception e) {
-
-                // TODO: Implement logging of errors
                 throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), id);
             }
         } else {
@@ -140,8 +136,6 @@ public class UserService {
                     return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
                 }
             } catch (Exception e) {
-
-                // TODO: Implement logging of errors
                 throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), addLeague);
             }
         } else {
@@ -159,8 +153,6 @@ public class UserService {
                 userRepository.deleteUserById(id);
                 return new ResponseEntity<>(HttpStatus.OK);
             } catch (Exception e) {
-
-                // TODO: Implement logging of errors
                 throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), id);
             }
         } else {
@@ -176,8 +168,6 @@ public class UserService {
         try {
             return userRepository.save(user);
         } catch (Exception e) {
-
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), user);
         }
     }

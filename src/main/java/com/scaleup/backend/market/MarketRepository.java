@@ -13,10 +13,8 @@ public interface MarketRepository extends CassandraRepository <Market, String>{
     @AllowFiltering
     Optional<Market> findMarketByLeagueIdAndSymbol(String leagueId, String symbol);
 
-    @AllowFiltering
     List<Market> findMarketByLeagueId(String league);
 
-    @AllowFiltering
     void deleteMarketByLeagueId(String league);
 
     @AllowFiltering

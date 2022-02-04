@@ -20,7 +20,7 @@ public class User {
     @Column("username")
     private String username;
 
-    @Column("leagues")
     @Frozen
+    @Column("leagues")
     private LinkedHashMap<String, String> leagues;
 }
