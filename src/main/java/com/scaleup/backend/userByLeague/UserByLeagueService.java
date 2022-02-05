@@ -6,8 +6,8 @@ import com.scaleup.backend.exceptionHandling.CustomErrorException;
 import com.scaleup.backend.stock.Stock;
 import com.scaleup.backend.stock.StockRepository;
 import com.scaleup.backend.stock.StockService;
-import com.scaleup.backend.stocksByUser.UserStock;
-import com.scaleup.backend.stocksByUser.UserStockRepository;
+import com.scaleup.backend.stocksByUser.StockByUser;
+import com.scaleup.backend.stocksByUser.StockByUserRepository;
 import com.scaleup.backend.userByLeague.DTO.DepotUser;
 import com.scaleup.backend.userByLeague.DTO.PortfolioAndDepotValue;
 import com.scaleup.backend.userByLeague.DTO.StockInDepot;
@@ -30,20 +30,20 @@ import java.util.Optional;
 public class UserByLeagueService {
 
     final UserByLeagueRepository userByLeagueRepository;
-    final UserStockRepository userStockRepository;
+    final StockByUserRepository stockByUserRepository;
     final StockRepository stockRepository;
     final StockService stockService;
     final DepotByUserRepository depotByUserRepository;
 
     public UserByLeagueService(
             UserByLeagueRepository userByLeagueRepository,
-            UserStockRepository userStockRepository,
+            StockByUserRepository stockByUserRepository,
             StockRepository stockRepository,
             StockService stockService,
             DepotByUserRepository depotByUserRepository
     ) {
         this.userByLeagueRepository = userByLeagueRepository;
-        this.userStockRepository = userStockRepository;
+        this.stockByUserRepository = stockByUserRepository;
         this.stockRepository = stockRepository;
         this.stockService = stockService;
         this.depotByUserRepository = depotByUserRepository;
@@ -66,8 +66,8 @@ public class UserByLeagueService {
     }
 
     public ResponseEntity<BigDecimal> updateValueDepot(ValueDepotUpdate valueDepotUpdate){
-        String leagueId = valueDepotUpdate.getLeagueId();
-        String userId = valueDepotUpdate.getUserId();
+        String leagueId = valueDepotUpdate.getLeagueid();
+        String userId = valueDepotUpdate.getUserid();
 
         try {
             Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueId, userId);
@@ -76,25 +76,25 @@ public class UserByLeagueService {
                 throw new CustomErrorException(HttpStatus.NO_CONTENT, "User could not be found in this league");
             }
 
-            List<UserStock> userStocks = userStockRepository.findUserStocksByLeagueIdAndUserId(leagueId, userId);
+            List<StockByUser> stockByUsers = stockByUserRepository.findUserStocksByLeagueIdAndUserId(leagueId, userId);
             BigDecimal valueDepot = new BigDecimal(BigInteger.valueOf(0));
             Integer amount;
             BigDecimal valueStock;
 
-            if (userStocks.isEmpty()) {
-                throw new CustomErrorException(HttpStatus.NO_CONTENT, "User has no stocks");
+            if (stockByUsers.isEmpty()) {
+                return new ResponseEntity<>(BigDecimal.ZERO, HttpStatus.OK);
             }
 
-            for (UserStock userStock : userStocks) {
-                amount = userStock.getAmount();
-                Optional<Stock> stock = stockRepository.findStockBySymbol(userStock.getSymbol());
+            for (StockByUser stockByUser : stockByUsers) {
+                amount = stockByUser.getAmount();
+                Optional<Stock> stock = stockRepository.findStockBySymbol(stockByUser.getSymbol());
                 if (stock.isPresent()) {
                     valueStock = stock.get().getCurrentPrice();
                     valueDepot = valueDepot.add(valueStock.multiply(BigDecimal.valueOf(amount)));
                 } else {
                     throw new CustomErrorException(
                             HttpStatus.NO_CONTENT,
-                            "The stock with the symbol " + userStock.getSymbol() + " does not exist");
+                            "The stock with the symbol " + stockByUser.getSymbol() + " does not exist");
                 }
             }
 
@@ -106,33 +106,33 @@ public class UserByLeagueService {
 
     public ResponseEntity<DepotUser> getDepotUser(ValueDepotUpdate valueDepotUpdate) {
         try {
-            String leagueId = valueDepotUpdate.getLeagueId();
-            String userId = valueDepotUpdate.getUserId();
+            String leagueId = valueDepotUpdate.getLeagueid();
+            String userId = valueDepotUpdate.getUserid();
 
             // Get all stocks the user owns in this league
-            List<UserStock> userStocks = userStockRepository.findUserStocksByLeagueIdAndUserId(leagueId, userId);
+            List<StockByUser> stockByUsers = stockByUserRepository.findUserStocksByLeagueIdAndUserId(leagueId, userId);
 
             // Collect all info of the stocks owned by the user in this league
             List<StockInDepot> stocksInDepot = new ArrayList<>();
             BigDecimal portfolioValue = BigDecimal.ZERO;
-            for (UserStock userStock : userStocks) {
-                Optional<Stock> stockOptional = stockRepository.findStockBySymbol(userStock.getSymbol());
+            for (StockByUser stockByUser : stockByUsers) {
+                Optional<Stock> stockOptional = stockRepository.findStockBySymbol(stockByUser.getSymbol());
 
                 if (stockOptional.isEmpty()) {
                     throw new CustomErrorException(
                             HttpStatus.NO_CONTENT,
-                            "The stock with the symbol " + userStock.getSymbol() + " does not exist");
+                            "The stock with the symbol " + stockByUser.getSymbol() + " does not exist");
                 }
 
                 Stock stock = stockOptional.get();
-                BigDecimal totalStockValue = stock.getCurrentPrice().multiply(BigDecimal.valueOf(userStock.getAmount()));
+                BigDecimal totalStockValue = stock.getCurrentPrice().multiply(BigDecimal.valueOf(stockByUser.getAmount()));
                 stocksInDepot.add(new StockInDepot(
-                        userStock.getSymbol(),
-                        userStock.getStockName(),
+                        stockByUser.getSymbol(),
+                        stockByUser.getStockName(),
                         stock.getCurrentPrice(),
                         totalStockValue,
-                        stock.getCurrentPrice().divide(userStock.getValueWhenBought(), 2, RoundingMode.HALF_UP).subtract(BigDecimal.ONE),
-                        stock.getCurrentPrice().subtract(userStock.getValueWhenBought())
+                        stock.getCurrentPrice().divide(stockByUser.getValueWhenBought(), 2, RoundingMode.HALF_UP).subtract(BigDecimal.ONE),
+                        stock.getCurrentPrice().subtract(stockByUser.getValueWhenBought())
                         ));
 
                 portfolioValue = portfolioValue.add(totalStockValue);
@@ -155,7 +155,7 @@ public class UserByLeagueService {
             }
 
 
-            // LinkedHashMap with historical Data about the portfolioValue in the past 30 days
+            // LinkedHashMap with historical Data about the portfolio_value in the past 30 days
             // TODO: fill with historical Data
             LocalDateTime thirtyDaysAgo = today.minusDays(30);
             List<DepotByUser> past30DaysPortfolioValue = depotByUserRepository.findAllByLeagueIdAndUserIdAndDate(leagueId, userId, thirtyDaysAgo);
@@ -166,7 +166,7 @@ public class UserByLeagueService {
                 linkedHashMap.put(dateIterator, BigDecimal.valueOf(0.0));
                 dateIterator = dateIterator.plusDays(1);
             }
-            // Add the date and portfolioValue to the hashmap
+            // Add the date and portfolio_value to the hashmap
             for (DepotByUser byUser : past30DaysPortfolioValue) {
                 linkedHashMap.put(byUser.getDate(), byUser.getPortfolioValue());
             }
@@ -199,8 +199,8 @@ public class UserByLeagueService {
     }
 
     public ResponseEntity<BigDecimal> getFreeBudget(ValueDepotUpdate valueDepotUpdate) {
-        String leagueId = valueDepotUpdate.getLeagueId();
-        String userId = valueDepotUpdate.getUserId();
+        String leagueId = valueDepotUpdate.getLeagueid();
+        String userId = valueDepotUpdate.getUserid();
 
         try {
             Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueId, userId);

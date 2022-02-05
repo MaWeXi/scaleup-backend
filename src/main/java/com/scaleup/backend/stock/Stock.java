@@ -20,7 +20,7 @@ public class Stock implements Serializable {
     @PrimaryKey("symbol")
     private String symbol;
 
-    @Column("name")
+    @Column("stock_name")
     private String stockName;
 
     @Column("isin")

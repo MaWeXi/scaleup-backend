@@ -17,12 +17,13 @@ import java.util.List;
 @AllArgsConstructor
 public class DepotUser {
 
-    private BigDecimal portfolioValue;
-    private BigDecimal portfolioValueDevelopmentTotal;
-    private BigDecimal portfolioValueDevelopmentPercent;
+    private BigDecimal portfolio_value;
+    private BigDecimal portfolio_valueDevelopmentTotal;
+    private BigDecimal portfolio_valueDevelopmentPercent;
     private BigDecimal freeBudget;
     private List<StockInDepot> stocksInDepot;
-    private LinkedHashMap<LocalDateTime, BigDecimal> historyPortfolioValue;
+    private LinkedHashMap<LocalDateTime, BigDecimal> historyPortfolio_value;
     private Integer amountJoker;
+
 
 }

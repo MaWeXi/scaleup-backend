@@ -82,7 +82,7 @@ public class MarketService {
 
     public ResponseEntity<Market> updateJoker(String leagueId, UpdateJoker updateJoker) {
         try {
-            String userId = updateJoker.getUserId();
+            String userId = updateJoker.getUserid();
             String symbol = updateJoker.getSymbol();
 
             // Check if the user has an unused joker left
@@ -97,15 +97,18 @@ public class MarketService {
             String jokerToActivate = "1";
 
             if (userByLeague.getJoker1()==Boolean.FALSE){ jokerAmount++; jokerToActivate = "1";}
-            if (userByLeague.getJoker2()==Boolean.FALSE){ jokerAmount++; jokerToActivate = "2";}
-            if (userByLeague.getJoker3()==Boolean.FALSE){ jokerAmount++; jokerToActivate = "3";}
+            else if (userByLeague.getJoker2()==Boolean.FALSE){ jokerAmount++; jokerToActivate = "2";}
+            else if (userByLeague.getJoker3()==Boolean.FALSE){ jokerAmount++; jokerToActivate = "3";}
+
             if (jokerAmount > 0) {
 
                 // Update joker to true in market
                 Optional<Market> marketOptional = marketRepository.findMarketByLeagueIdAndSymbol(leagueId, symbol);
 
                 if (marketOptional.isEmpty()) {
-                    throw new CustomErrorException(HttpStatus.CONFLICT, "This league does not have a market yet");
+                    throw new CustomErrorException(
+                            HttpStatus.CONFLICT,
+                            "This league does not have a market yet or the stock is not in this market");
                 }
 
                 Market market = marketOptional.get();

@@ -11,7 +11,7 @@ import org.springframework.data.cassandra.core.mapping.Table;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-@Table("markets_v1")
+@Table("markets")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,18 +23,18 @@ public class Market {
     @PrimaryKeyColumn(name="symbol", ordinal=1, type=PrimaryKeyType.CLUSTERED)
     private String symbol;
 
-    @Column
+    @Column("stock_name")
     private String stockName;
 
-    @Column("currentValue")
+    @Column("current_value")
     private BigDecimal currentValue;
 
-    @Column("dateEntered")
+    @Column("date_entered")
     private Timestamp dateEntered;
 
-    @Column("dateLeft")
+    @Column("date_left")
     private Timestamp dateLeft;
 
-    @Column("jokerActive")
+    @Column("joker_active")
     private Boolean jokerActive;
 }

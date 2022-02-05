@@ -75,7 +75,7 @@ public class LeagueService {
                  */
                 League league = modelMapper.map(leagueDTO, League.class);
 
-                // Create and set new leagueId and new leagueCode
+                // Create and set new leagueid and new leagueCode
                 String leagueCode = getUniqueString();
                 String leagueId = leagueCode + "_SUID";
                 while (leagueRepository.findLeagueByLeagueId(leagueId).isPresent()){

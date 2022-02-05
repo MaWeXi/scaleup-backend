@@ -33,7 +33,7 @@ public class StockHistoryQuarterRepository {
 
     public Dataset<StockHistoryDTO> getStockHistoryByQuarter(String symbol, String interval) {
 
-        LocalDate date = LocalDate.now().minusYears(1);
+        LocalDate date = LocalDate.now();
         final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-Q");
         String dateString = dtf.format(date);
 
@@ -60,7 +60,7 @@ public class StockHistoryQuarterRepository {
 
         Dataset<Row> df = spark.read()
                 .format("org.apache.spark.sql.cassandra")
-                .options(ImmutableMap.of("table", "stock_history_by_quarter", "keyspace", "testing"))
+                .options(ImmutableMap.of("table", "stock_history_by_quarter", "keyspace", "scaleup"))
                 .load()
                 .filter(col("symbol").like(symbol))
                 .filter(col("year_and_quarter").like(dateString))

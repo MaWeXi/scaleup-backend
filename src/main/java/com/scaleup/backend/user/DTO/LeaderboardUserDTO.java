@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 public class LeaderboardUserDTO {
 
     private String username;
-    private BigDecimal portfolioValue;
+    private BigDecimal portfolio_value;
     private BigDecimal freeBudget;
 
 }

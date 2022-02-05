@@ -4,10 +4,10 @@ import com.scaleup.backend.exceptionHandling.CustomErrorException;
 import com.scaleup.backend.stock.Stock;
 import com.scaleup.backend.stock.StockRepository;
 import com.scaleup.backend.stocksByUser.DTO.StockAmountGetInformation;
-import com.scaleup.backend.transactions.Transaction;
-import com.scaleup.backend.transactions.TransactionRepository;
 import com.scaleup.backend.stocksByUser.DTO.StockBuy;
 import com.scaleup.backend.stocksByUser.DTO.StockSell;
+import com.scaleup.backend.transactions.Transaction;
+import com.scaleup.backend.transactions.TransactionRepository;
 import com.scaleup.backend.userByLeague.UserByLeague;
 import com.scaleup.backend.userByLeague.UserByLeagueRepository;
 import org.springframework.http.HttpStatus;
@@ -16,177 +16,211 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
 public class StockByUserService {
 
     final StockByUserRepository stockByUserRepository;
-    final TransactionRepository transactionRepository;
     final StockRepository stockRepository;
     final UserByLeagueRepository userByLeagueRepository;
+    final TransactionRepository transactionRepository;
 
-    public StockByUserService(StockByUserRepository stockByUserRepository, TransactionRepository transactionRepository, StockRepository stockRepository, UserByLeagueRepository userByLeagueRepository) {
+    public StockByUserService(
+            StockByUserRepository stockByUserRepository,
+            StockRepository stockRepository,
+            UserByLeagueRepository userByLeagueRepository,
+            TransactionRepository transactionRepository
+    ) {
         this.stockByUserRepository = stockByUserRepository;
-        this.transactionRepository = transactionRepository;
         this.stockRepository = stockRepository;
         this.userByLeagueRepository = userByLeagueRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     public ResponseEntity<StockByUser> buyStock(StockBuy stockBuy) {
-        String leagueid = stockBuy.getLeagueId();
-        String userid = stockBuy.getUserId();
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        String leagueId = stockBuy.getLeagueid();
+        String userId = stockBuy.getUserid();
         String symbol = stockBuy.getSymbol();
         Integer amount = stockBuy.getAmount();
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+        Optional<StockByUser> userStockOptional = stockByUserRepository.findUserStockByLeagueIdAndUserIdAndSymbol(
+                leagueId,
+                userId,
+                symbol
+        );
+        Optional<Stock> stockOptional = stockRepository.findStockBySymbol(symbol);
+        Optional<UserByLeague> userOptional = userByLeagueRepository.findByLeagueIdAndUserId(leagueId, userId);
+
         try {
-            Optional<StockByUser> stockByUser = stockByUserRepository.findAllByLeagueIdEqualsAndUserIdEqualsAndSymbolEquals(leagueid, userid, symbol);
-            Optional<Stock> stock = stockRepository.findStockBySymbol(symbol);
-            Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueid, userid);
-            StockByUser stockByUserReturn = new StockByUser();
 
-            //check whether user and stock exist and if user has enough freeBudget to buy the amount of stock
-            if (stock.isPresent() && userByLeague.isPresent() && (userByLeague.get().getFreeBudget()).intValue()>(stock.get().getCurrentPrice().multiply(BigDecimal.valueOf(amount))).intValue()){
-                BigDecimal askPrice = stock.get().getAskPrice();
+            // Check if stockId and userid are valid
+            if (stockOptional.isPresent() && userOptional.isPresent()) {
 
-                //check whether Stock is already in depot of user
-                if (stockByUser.isPresent()){
-                    //case: stock is already in depot of user
-                    //get information and update the entity in stocksByUser for amount (he owns of the stock) and valueWhenBought
-                    stockByUserReturn = stockByUser.get();
-                    stockByUserReturn.setAmount(stockByUser.get().getAmount()+amount);
-                    stockByUserReturn.setValueWhenBought(stockByUser.get().getValueWhenBought().add(askPrice.multiply(BigDecimal.valueOf(amount))));
-                    stockByUserReturn = stockByUserRepository.save(stockByUserReturn);
+                Stock stock = stockOptional.get();
+                UserByLeague user = userOptional.get();
+                BigDecimal buyCost = stock.getAskPrice().multiply(BigDecimal.valueOf(amount));
+                BigDecimal freeBudget = user.getFreeBudget();
+
+                // Check whether the user has enough balance to buy this amount of stock
+                if (freeBudget.compareTo(buyCost) >= 0) {
+                    StockByUser stockByUser;
+
+                    // Check if the user already owns this particular stock and either just update the amount or
+                    // create a new StockByUser object to store in the DB
+                    if (userStockOptional.isPresent()) {
+                        Integer ownedStockAmount = userStockOptional.get().getAmount();
+                        stockByUser = userStockOptional.get();
+                        stockByUser.setAmount(ownedStockAmount + amount);
+                        stockByUser.setTimeLastUpdated(timestamp);
+                    } else {
+                        stockByUser = new StockByUser(
+                                leagueId,
+                                userId,
+                                symbol,
+                                stock.getStockName(),
+                                timestamp,
+                                amount,
+                                stock.getAskPrice().multiply(BigDecimal.valueOf(amount)));
+                    }
+
+                    // Save updated StockByUser object
+                    StockByUser _StockByUser = stockByUserRepository.save(stockByUser);
+
+                    // Create a new Transaction object and store in DB
+                    transactionRepository.save(new Transaction(
+                            leagueId,
+                            LocalDate.now().getYear(),
+                            userId,
+                            timestamp,
+                            symbol,
+                            stock.getStockName(),
+                            user.getUsername(),
+                            stock.getBidPrice(),
+                            amount,
+                            "buy"
+                    ));
+
+                    // Update the portfolio_value and the freeBudget of the user in UserByLeague
+                    user.setFreeBudget(freeBudget.subtract(buyCost));
+                    user.setPortfolioValue(user.getPortfolioValue().add(buyCost));
+                    userByLeagueRepository.save(user);
+
+                    return new ResponseEntity<>(_StockByUser, HttpStatus.OK);
                 } else {
-                    //case: stock is not yet in depot of user
-                    //define new stockByUser, which then will be used to create a new entity in table
-                    StockByUser stockByUser1 = new StockByUser();
-                    stockByUser1.setLeagueId(leagueid);
-                    stockByUser1.setUserId(userid);
-                    stockByUser1.setSymbol(symbol);
-                    stockByUser1.setAmount(amount);
-                    stockByUser1.setTimeLastUpdated(timestamp);
-                    stockByUser1.setValueWhenBought(askPrice.multiply(BigDecimal.valueOf(amount)));
-                    stockByUserReturn = stockByUserRepository.save(stockByUser1);
+                    throw new CustomErrorException(HttpStatus.CONFLICT,  "Balance too low to buy this amount");
                 }
-
-                //add entity in transactions
-                Transaction transaction = new Transaction();
-                transaction.setLeagueId(leagueid);
-                transaction.setUserId(userid);
-                transaction.setSymbol(symbol);
-                transaction.setUsername(userByLeague.get().getUsername());
-                transaction.setAmount(amount);
-                transaction.setTypeOfTransaction("buy");
-                transaction.setYear(timestamp.getYear());
-                transaction.setTimestampTransaction(timestamp);
-                transaction.setSingleStockValue(askPrice);
-                transactionRepository.save(transaction);
-
-                //reduce freeBudget and increase DepotValue
-                UserByLeague userByLeagueUpdate = userByLeague.get();
-                BigDecimal freeBudget = userByLeagueUpdate.getFreeBudget();
-                freeBudget = freeBudget.subtract(BigDecimal.valueOf(amount).multiply(askPrice));
-                userByLeagueUpdate.setFreeBudget(freeBudget);
-                BigDecimal portfolioValue = userByLeagueUpdate.getPortfolioValue();
-                portfolioValue = portfolioValue.add(BigDecimal.valueOf(amount).multiply(askPrice));
-                userByLeagueUpdate.setPortfolioValue(portfolioValue);
-                userByLeagueRepository.save(userByLeagueUpdate);
             } else {
-                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User oder die Aktie existieren nicht oder der User hat zu wenig Geld");
+                throw new CustomErrorException(HttpStatus.CONFLICT,  "Either stockId or userid is incorrect");
             }
-            return new ResponseEntity<>(stockByUserReturn, HttpStatus.OK);
-        }catch (Exception e){
-            // TODO: Implement logging of errors
+        } catch (Exception e) {
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
     public ResponseEntity<StockByUser> sellStock(StockSell stockSell) {
-        String leagueid = stockSell.getLeagueId();
-        String userid = stockSell.getUserId();
+
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        String leagueId = stockSell.getLeagueid();
+        String userId = stockSell.getUserid();
         String symbol = stockSell.getSymbol();
         Integer amount = stockSell.getAmount();
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+
+        Optional<StockByUser> userStockOptional = stockByUserRepository.findUserStockByLeagueIdAndUserIdAndSymbol(
+                leagueId,
+                userId,
+                symbol
+        );
+        Optional<Stock> stockOptional = stockRepository.findStockBySymbol(symbol);
+        Optional<UserByLeague> userOptional = userByLeagueRepository.findByLeagueIdAndUserId(leagueId, userId);
+
         try {
-            Optional<StockByUser> stockByUser = stockByUserRepository.findAllByLeagueIdEqualsAndUserIdEqualsAndSymbolEquals(leagueid, userid, symbol);
-            Optional<Stock> stock = stockRepository.findStockBySymbol(symbol);
-            Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueid, userid);
-            StockByUser stockByUserReturn = new StockByUser();
 
-            //check whether user and stock exist
-            if (stock.isPresent() && userByLeague.isPresent()){
-                BigDecimal bidPrice = stock.get().getBidPrice();
-                Boolean enoughStocks = stockByUser.get().getAmount()>=stockSell.getAmount();
+            // Check if stockId and userid are valid
+            if (stockOptional.isPresent() && userOptional.isPresent()) {
+                Stock stock = stockOptional.get();
+                UserByLeague user = userOptional.get();
+                BigDecimal sellCost = stock.getBidPrice().multiply(BigDecimal.valueOf(amount));
+                BigDecimal freeBudget = user.getFreeBudget();
 
-                //add entity in stocksByUser
-                //check whether Stock is in depot of user and if the user has enough stocks
-                if (stockByUser.isPresent() && enoughStocks){
-                    //case: stock is already in depot of user and user has enough stocks
-                    //get information and update the entity in stocksByUser for amount (he owns of the stock) and valueWhenBought
-                    stockByUserReturn = stockByUser.get();
-                    stockByUserReturn.setAmount(stockByUser.get().getAmount()-amount);
-                    stockByUserReturn.setValueWhenBought(stockByUser.get().getValueWhenBought().subtract(bidPrice.multiply(BigDecimal.valueOf(amount))));
-                    stockByUserReturn = stockByUserRepository.save(stockByUserReturn);
-                } else if (enoughStocks) {
-                    //case: stock is not yet in depot of user and user has enough stocks
-                    //create new entity
-                    stockByUserReturn.setUserId(userid);
-                    stockByUserReturn.setLeagueId(leagueid);
-                    stockByUserReturn.setSymbol(symbol);
-                    stockByUserReturn.setAmount(amount);
-                    stockByUserReturn.setTimeLastUpdated(timestamp);
-                    stockByUserReturn = stockByUserRepository.save(stockByUserReturn);
+                if (userStockOptional.isPresent()) {
+                    StockByUser stockByUser = userStockOptional.get();
+                    StockByUser _StockByUser;
+
+                    if (stockByUser.getAmount() > amount) {
+                        stockByUser.setAmount(stockByUser.getAmount() - amount);
+                        stockByUser.setTimeLastUpdated(timestamp);
+
+                        // Save updated StockByUser object
+                        _StockByUser = stockByUserRepository.save(stockByUser);
+
+                    }
+
+                    // Delete stock completely if amount equals zero
+                    else if (stockByUser.getAmount().equals(amount)) {
+
+                        stockByUserRepository.deleteUserStockByLeagueIdAndUserIdAndSymbol(leagueId, userId, symbol);
+                        stockByUser.setAmount(stockByUser.getAmount() - amount);
+                        stockByUser.setTimeLastUpdated(timestamp);
+                        _StockByUser = stockByUser;
+
+                    } else {
+                        throw new CustomErrorException(
+                                HttpStatus.CONFLICT,
+                                "This user does not have enough of this stock to sell this amount");
+                    }
+
+                    // Create a new Transaction object and store in DB
+                    transactionRepository.save(new Transaction(
+                            leagueId,
+                            LocalDate.now().getYear(),
+                            userId,
+                            timestamp,
+                            symbol,
+                            stock.getStockName(),
+                            user.getUsername(),
+                            stock.getAskPrice(),
+                            amount,
+                            "sell"
+                    ));
+
+                    // Update the portfolio_value and the freeBudget of the user in UserByLeague
+                    user.setFreeBudget(freeBudget.add(sellCost));
+                    user.setPortfolioValue(user.getPortfolioValue().subtract(sellCost));
+                    userByLeagueRepository.save(user);
+
+                    return new ResponseEntity<>(_StockByUser, HttpStatus.OK);
+
                 } else {
-                    //case: user doesnt have the stock or he has too less of it
-                    throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User hat die Aktie nicht oder er hat zu wenig Aktien");
+                    throw new CustomErrorException(HttpStatus.CONFLICT,  "This user does not own this stock");
                 }
-
-                //add entity in transactions
-                Transaction transaction = new Transaction();
-                transaction.setLeagueId(leagueid);
-                transaction.setUserId(userid);
-                transaction.setSymbol(symbol);
-                transaction.setUsername(userByLeague.get().getUsername());
-                transaction.setAmount(amount);
-                transaction.setTypeOfTransaction("sell");
-                transaction.setYear(timestamp.getYear());
-                transaction.setTimestampTransaction(timestamp);
-                transaction.setSingleStockValue(bidPrice);
-                transactionRepository.save(transaction);
-
-                //add profit to freeBudget and decrease portfolioValue in userByLeague
-                UserByLeague userByLeagueUpdate = userByLeague.get();
-                BigDecimal budget = userByLeagueUpdate.getFreeBudget();
-                budget = budget.add(BigDecimal.valueOf(amount).multiply(bidPrice));
-                userByLeagueUpdate.setFreeBudget(budget);
-                BigDecimal portfolioValue = userByLeagueUpdate.getPortfolioValue();
-                portfolioValue = portfolioValue.subtract(BigDecimal.valueOf(amount).multiply(bidPrice));
-                userByLeagueUpdate.setPortfolioValue(portfolioValue);
-                userByLeagueRepository.save(userByLeagueUpdate);
             } else {
-                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User oder die Aktie existieren nicht oder der User hat zu wenig Geld");
+                throw new CustomErrorException(HttpStatus.CONFLICT,  "Either stockId or userid is incorrect");
             }
-            return new ResponseEntity<>(stockByUserReturn, HttpStatus.OK);
-        }catch (Exception e){
-            // TODO: Implement logging of errors
+
+        } catch (Exception e) {
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
-    public ResponseEntity<Integer> getStockAmountOwned(StockAmountGetInformation stockAmountGetInformation) {
+    public ResponseEntity<Integer> getStockAmountOwned(StockAmountGetInformation stock) {
         try {
-            String leagueId = stockAmountGetInformation.getLeagueId();
-            String userId = stockAmountGetInformation.getUserId();
-            String symbol = stockAmountGetInformation.getSymbol();
-            Optional<StockByUser> stockByUser = stockByUserRepository.findAllByLeagueIdEqualsAndUserIdEqualsAndSymbolEquals(leagueId, userId, symbol);
-            if (stockByUser.isEmpty()) {
-                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User besitzt diese Aktie nicht");
+            Optional<StockByUser> userStock = stockByUserRepository.findUserStockByLeagueIdAndUserIdAndSymbol(
+                    stock.getLeagueId(),
+                    stock.getUserId(),
+                    stock.getSymbol()
+            );
+
+            if (userStock.isEmpty()) {
+                throw new CustomErrorException(HttpStatus.NO_CONTENT, "User does not own this stock");
             }
-            Integer amountStockOwned = stockByUser.get().getAmount();
+
+            Integer amountStockOwned = userStock.get().getAmount();
             return new ResponseEntity<>(amountStockOwned, HttpStatus.OK);
         } catch (Exception e) {
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
