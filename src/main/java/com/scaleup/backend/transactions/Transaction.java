@@ -16,14 +16,14 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Transaction {
-    // leagueId, year, userId, timestamp, symbol, singleStockValue, amount, typeOfTransaction
-    @PrimaryKeyColumn(name = "leagueId", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+
+    @PrimaryKeyColumn(name = "league_id", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
     private String leagueId;
 
     @PrimaryKeyColumn(name = "year", ordinal = 1, type = PrimaryKeyType.PARTITIONED)
     private Integer year;
 
-    @PrimaryKeyColumn(name = "userId", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
+    @PrimaryKeyColumn(name = "user_id", ordinal = 2, type = PrimaryKeyType.CLUSTERED)
     private String userId;
 
     @PrimaryKeyColumn(name = "timestamp", ordinal = 3, type = PrimaryKeyType.CLUSTERED)
@@ -32,6 +32,9 @@ public class Transaction {
     @PrimaryKeyColumn(name = "symbol", ordinal = 4, type = PrimaryKeyType.CLUSTERED)
     private String symbol;
 
+    @Column("stock_name")
+    private String stockName;
+
     @Column("username")
     private String username;
 
@@ -39,7 +42,7 @@ public class Transaction {
     private BigDecimal singleStockValue;
 
     @Column("amount")
-    private Float amount;
+    private Integer amount;
 
     //Buy or Sell
     @Column("typeOfTransaction")

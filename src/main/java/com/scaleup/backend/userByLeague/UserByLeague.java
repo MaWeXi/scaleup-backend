@@ -26,7 +26,7 @@ public class UserByLeague {
     private String username;
 
     @Column("portfolio_value")
-    private BigDecimal portfolio_value;
+    private BigDecimal portfolioValue;
 
     @Column("free_budget")
     private BigDecimal freeBudget;

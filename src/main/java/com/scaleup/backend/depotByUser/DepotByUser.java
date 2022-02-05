@@ -14,25 +14,25 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-@Table("depotByUser")
+@Table("depot_by_user")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class DepotByUser {
 
-    @PrimaryKeyColumn(name = "leagueId", ordinal = 0, type = PrimaryKeyType.PARTITIONED)
+    @PrimaryKeyColumn(name="league_id", ordinal=0, type=PrimaryKeyType.PARTITIONED)
     private String leagueId;
 
-    @PrimaryKeyColumn(name = "userId", ordinal =  1, type = PrimaryKeyType.CLUSTERED)
+    @PrimaryKeyColumn(name="user_id", ordinal=1, type=PrimaryKeyType.CLUSTERED)
     private String userId;
 
-    @PrimaryKeyColumn(name = "date", ordinal =  2, type = PrimaryKeyType.CLUSTERED)
+    @PrimaryKeyColumn(name="date", ordinal=2, type=PrimaryKeyType.CLUSTERED)
     private LocalDateTime date;
 
-    @Column("portfolioValue")
+    @Column("portfolio_value")
     private BigDecimal portfolioValue;
 
-    @Column("depotValue")
+    @Column("depot_value")
     private BigDecimal depotValue;
 
 }

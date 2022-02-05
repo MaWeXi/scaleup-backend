@@ -17,8 +17,9 @@ public class TransactionDTO {
     private String username;
     private Timestamp timestamp;
     private String symbol;
+    private String stockName;
     private BigDecimal singleStockValue;
-    private Float amount;
+    private Integer amount;
     private String typeOfTransaction;
 
 }

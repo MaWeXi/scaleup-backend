@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,20 +20,21 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public ResponseEntity<List<TransactionDTO>> getTransactionsWholeLeague(String leagueId) {
+    public ResponseEntity<List<TransactionDTO>> getTransactionsByLeague(String leagueId) {
 
         try {
-            List<TransactionDTO> transactionDTOList = transactionRepository.findAllByLeagueIdEquals(leagueId).stream().map(transaction ->
-            {
-                TransactionDTO transactionDTO = new TransactionDTO();
-                transactionDTO.setUsername(transaction.getUsername());
-                transactionDTO.setTimestamp(transaction.getTimestampTransaction());
-                transactionDTO.setSymbol(transaction.getSymbol());
-                transactionDTO.setSingleStockValue(transaction.getSingleStockValue());
-                transactionDTO.setAmount(transaction.getAmount());
-                transactionDTO.setTypeOfTransaction(transaction.getTypeOfTransaction());
-                return transactionDTO;
-            }).collect(Collectors.toList());
+            List<TransactionDTO> transactionDTOList = transactionRepository.findTransactionByLeagueIdAndYear(
+                    leagueId,
+                    LocalDate.now().getYear()
+            ).stream().map(transaction ->
+                    new TransactionDTO(
+                    transaction.getUsername(),
+                    transaction.getTimestampTransaction(),
+                    transaction.getSymbol(),
+                    transaction.getStockName(),
+                    transaction.getSingleStockValue(),
+                    transaction.getAmount(),
+                    transaction.getTypeOfTransaction())).collect(Collectors.toList());
             return new ResponseEntity<>(transactionDTOList, HttpStatus.OK);
         } catch (Exception e) {
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());

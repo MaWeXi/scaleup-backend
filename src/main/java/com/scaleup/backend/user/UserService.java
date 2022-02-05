@@ -41,8 +41,6 @@ public class UserService {
             }
             return new ResponseEntity<>(users, HttpStatus.OK);
         } catch (Exception e) {
-
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -54,8 +52,6 @@ public class UserService {
             try {
                 return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
             } catch (Exception e) {
-
-                // TODO: Implement logging of errors
                 throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), id);
             }
         } else {
@@ -94,7 +90,7 @@ public class UserService {
     @Transactional
     public ResponseEntity<User> addUserToLeague(String userId, AddLeagueDTO addLeague) {
         Optional<User> userOptional = userRepository.findById(userId);
-        Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueIdEqualsAndLeagueCodeEquals(
+        Optional<League> leagueOptional = leagueRepository.findLeagueByLeagueIdAndLeagueCode(
                 addLeague.getLeagueId(),
                 addLeague.getLeagueCode()
         );
@@ -140,8 +136,6 @@ public class UserService {
                     return new ResponseEntity<>(userOptional.get(), HttpStatus.OK);
                 }
             } catch (Exception e) {
-
-                // TODO: Implement logging of errors
                 throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), addLeague);
             }
         } else {
@@ -159,8 +153,6 @@ public class UserService {
                 userRepository.deleteUserById(id);
                 return new ResponseEntity<>(HttpStatus.OK);
             } catch (Exception e) {
-
-                // TODO: Implement logging of errors
                 throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), id);
             }
         } else {
@@ -169,15 +161,13 @@ public class UserService {
     }
 
     /*
-    Helper Methods
+    Helper methods
      */
 
     public User saveUser(User user) {
         try {
             return userRepository.save(user);
         } catch (Exception e) {
-
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage(), user);
         }
     }

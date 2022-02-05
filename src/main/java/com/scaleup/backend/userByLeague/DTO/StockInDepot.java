@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 public class StockInDepot {
 
     private String symbol;
+    private String stockName;
     private BigDecimal currentPriceSingleStock;
     private BigDecimal currentPriceTotalValue;
     private BigDecimal currentPriceDevelopmentPercent;

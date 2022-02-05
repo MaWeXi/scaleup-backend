@@ -24,16 +24,18 @@ public class MarketController {
         return marketService.findMarketByLeague(league);
     }
 
-    @GetMapping("market/joker/active/{leagueid}")
-    public ResponseEntity<List<Market>> getMarketByLeagueWithJokerActive(@PathVariable("leagueid") String leagueid) {
-        return marketService.findMarketByLeagueWithJokerActive(leagueid);
+    // For development purposes only
+    @GetMapping("market/joker/active/{leagueId}")
+    public ResponseEntity<List<Market>> getMarketByLeagueWithJokerActive(@PathVariable("leagueId") String leagueId) {
+        return marketService.findMarketByLeagueWithJokerActive(leagueId);
     }
 
-    @PutMapping("/market/joker/update/{leagueid}")
-    public ResponseEntity<Market> updateJoker(@PathVariable("leagueid") String leagueid, @RequestBody UpdateJoker updateJoker) {
-        return marketService.updateJoker(leagueid, updateJoker);
+    @PutMapping("/market/joker/update/{leagueId}")
+    public ResponseEntity<Market> updateJoker(@PathVariable("leagueId") String leagueId, @RequestBody UpdateJoker updateJoker) {
+        return marketService.updateJoker(leagueId, updateJoker);
     }
 
+    // For development purposes only
     @PostMapping("/market/addEntity")
     public ResponseEntity<Market> addEntity(@RequestBody Market market) {
         return new ResponseEntity<>(marketRepository.save(market), HttpStatus.OK);

@@ -13,7 +13,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class PortfolioAndDepotValue {
 
-    private BigDecimal portfoliValue;
+    private BigDecimal portfolioValue;
     private BigDecimal depotValue;
 
 }

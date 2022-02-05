@@ -79,13 +79,13 @@ public class StockService {
                     case "week":
                     case "month":
                         stockHistories = stockHistoryQuarterRepository
-                                .getStockHistoryByQuarter("AAPL", interval)
+                                .getStockHistoryByQuarter(symbol, interval)
                                 .collectAsList();
                         break;
                     case "year":
-                        LocalDate dateNow = LocalDate.now().minusYears(1);
+                        LocalDate dateNow = LocalDate.now();
                         List<StockHistoryMax> stockHistoryMax = stockHistoryMaxRepository
-                                .findBySymbolAndDayBetween("aapl", dateNow.minusYears(1), dateNow);
+                                .findBySymbolAndDayBetween(symbol, dateNow.minusYears(1), dateNow);
 
                         List<StockHistoryDTO> stockHistoriesTemp = new ArrayList<>();
                         for (StockHistoryMax stockHistory : stockHistoryMax) {

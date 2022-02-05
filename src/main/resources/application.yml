@@ -7,6 +7,6 @@ astra:
   application-token: AstraCS:AEhTKWnkqddcFGdMYpvmlBsr:476dc3e055eddee60f566f20c9b8a8b7bd571fc69a6c6218deb360ff7766443c
   database-id: abcc18e1-395c-436a-b4a2-c9f334dc1155
   database-region: westeurope
-  keyspace: testing
+  keyspace: scaleup
   metrics:
     enabled: true

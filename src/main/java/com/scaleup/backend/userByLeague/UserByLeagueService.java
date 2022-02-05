@@ -3,7 +3,7 @@ package com.scaleup.backend.userByLeague;
 import com.scaleup.backend.depotByUser.DepotByUser;
 import com.scaleup.backend.depotByUser.DepotByUserRepository;
 import com.scaleup.backend.exceptionHandling.CustomErrorException;
-import com.scaleup.backend.stock.DTO.CurrentPriceUpdate;
+import com.scaleup.backend.stock.Stock;
 import com.scaleup.backend.stock.StockRepository;
 import com.scaleup.backend.stock.StockService;
 import com.scaleup.backend.stocksByUser.StockByUser;
@@ -12,7 +12,6 @@ import com.scaleup.backend.userByLeague.DTO.DepotUser;
 import com.scaleup.backend.userByLeague.DTO.PortfolioAndDepotValue;
 import com.scaleup.backend.userByLeague.DTO.StockInDepot;
 import com.scaleup.backend.userByLeague.DTO.ValueDepotUpdate;
-import org.joda.time.Period;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,8 +19,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.RoundingMode;
-import java.sql.Date;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,7 +35,13 @@ public class UserByLeagueService {
     final StockService stockService;
     final DepotByUserRepository depotByUserRepository;
 
-    public UserByLeagueService(UserByLeagueRepository userByLeagueRepository, StockByUserRepository stockByUserRepository, StockRepository stockRepository, StockService stockService, DepotByUserRepository depotByUserRepository) {
+    public UserByLeagueService(
+            UserByLeagueRepository userByLeagueRepository,
+            StockByUserRepository stockByUserRepository,
+            StockRepository stockRepository,
+            StockService stockService,
+            DepotByUserRepository depotByUserRepository
+    ) {
         this.userByLeagueRepository = userByLeagueRepository;
         this.stockByUserRepository = stockByUserRepository;
         this.stockRepository = stockRepository;
@@ -46,24 +49,11 @@ public class UserByLeagueService {
         this.depotByUserRepository = depotByUserRepository;
     }
 
-    public ResponseEntity<UserByLeague> findUserByLeagueByLeagueId(String league_id, String user_id) {
-        try {
-            Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(league_id, user_id);
-            if (userByLeague.isEmpty()) {
-                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User konnte in dieser Liga nicht gefunden werden");
-            }
-            return new ResponseEntity<>(userByLeague.get(), HttpStatus.OK);
-        }catch (Exception e){
-            // TODO: Implement logging of errors
-            throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-    }
-
     public ResponseEntity<Integer> findNumberOfJokerAvailable(String league_id, String user_id) {
         try {
             Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(league_id, user_id);
             if (userByLeague.isEmpty()) {
-                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User konnte in dieser Liga nicht gefunden werden");
+                throw new CustomErrorException(HttpStatus.NO_CONTENT, "User could not be found in this league");
             }
             Integer jokerAmount = 0;
             if (userByLeague.get().getJoker1()==Boolean.FALSE){ jokerAmount++;}
@@ -71,106 +61,104 @@ public class UserByLeagueService {
             if (userByLeague.get().getJoker3()==Boolean.FALSE){ jokerAmount++;}
             return new ResponseEntity<>(jokerAmount, HttpStatus.OK);
         }catch (Exception e){
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
     public ResponseEntity<BigDecimal> updateValueDepot(ValueDepotUpdate valueDepotUpdate){
-        String leagueid = valueDepotUpdate.getLeagueid();
-        String userid = valueDepotUpdate.getUserid();
+        String leagueId = valueDepotUpdate.getLeagueid();
+        String userId = valueDepotUpdate.getUserid();
 
         try {
-            Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueid, userid);
+            Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueId, userId);
 
             if (userByLeague.isEmpty()) {
-                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User konnte in dieser Liga nicht gefunden werden");
+                throw new CustomErrorException(HttpStatus.NO_CONTENT, "User could not be found in this league");
             }
 
-            List<StockByUser> stocksByUser = stockByUserRepository.findAllByLeagueIdEqualsAndUserIdEquals(leagueid, userid);
+            List<StockByUser> stockByUsers = stockByUserRepository.findUserStocksByLeagueIdAndUserId(leagueId, userId);
             BigDecimal valueDepot = new BigDecimal(BigInteger.valueOf(0));
             Integer amount;
             BigDecimal valueStock;
 
-            for (int i=0; i<stocksByUser.size(); i++){
-                amount = stocksByUser.get(i).getAmount();
-                valueStock = stockRepository.findStockBySymbol(stocksByUser.get(i).getSymbol()).get().getCurrentPrice();
-                valueDepot = valueDepot.add(valueStock.multiply(BigDecimal.valueOf(amount)));
+            if (stockByUsers.isEmpty()) {
+                return new ResponseEntity<>(BigDecimal.ZERO, HttpStatus.OK);
+            }
+
+            for (StockByUser stockByUser : stockByUsers) {
+                amount = stockByUser.getAmount();
+                Optional<Stock> stock = stockRepository.findStockBySymbol(stockByUser.getSymbol());
+                if (stock.isPresent()) {
+                    valueStock = stock.get().getCurrentPrice();
+                    valueDepot = valueDepot.add(valueStock.multiply(BigDecimal.valueOf(amount)));
+                } else {
+                    throw new CustomErrorException(
+                            HttpStatus.NO_CONTENT,
+                            "The stock with the symbol " + stockByUser.getSymbol() + " does not exist");
+                }
             }
 
             return new ResponseEntity<>(valueDepot, HttpStatus.OK);
         } catch (Exception e) {
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
 
     public ResponseEntity<DepotUser> getDepotUser(ValueDepotUpdate valueDepotUpdate) {
         try {
-            String leagueid = valueDepotUpdate.getLeagueid();;
-            String userid = valueDepotUpdate.getUserid();
-            DepotUser depotUser = new DepotUser();
+            String leagueId = valueDepotUpdate.getLeagueid();
+            String userId = valueDepotUpdate.getUserid();
 
-            // get all Stocks the user owns in this league
-            List<StockByUser> stockByUserList = stockByUserRepository.findAllByLeagueIdEqualsAndUserIdEquals(leagueid, userid);
-            List<String> stocksOwnedSymbol = new ArrayList<String>();
-            List<Integer> stocksOwnedAmount = new ArrayList<Integer>();
-            for (int i = 0; i<stockByUserList.size(); i++) {
-                stocksOwnedSymbol.add(stockByUserList.get(i).getSymbol());
-                stocksOwnedAmount.add(stockByUserList.get(i).getAmount());
-            }
+            // Get all stocks the user owns in this league
+            List<StockByUser> stockByUsers = stockByUserRepository.findUserStocksByLeagueIdAndUserId(leagueId, userId);
 
-            // get information about single Value of stock
-            CurrentPriceUpdate currentPriceUpdate = new CurrentPriceUpdate();
-            List<BigDecimal> currentPriceSingleStock = new ArrayList<BigDecimal>();
-            List<BigDecimal> currentPriceTotalValue = new ArrayList<BigDecimal>();
-            List<BigDecimal> currentPriceDevelopmentPercent = new ArrayList<BigDecimal>();
-            List<BigDecimal> currentPriceDevelopmentTotal = new ArrayList<BigDecimal>();
-            for (int i = 0; i<stocksOwnedSymbol.size(); i++){
-                //get updated current price of single stock to determine current value of stocks owned by the user
-                currentPriceUpdate = stockService.getCurrentPrice(stocksOwnedSymbol.get(i)).getBody();
-                currentPriceSingleStock.add(currentPriceUpdate.getCurrentPrice());
-                currentPriceTotalValue.add(currentPriceUpdate.getCurrentPrice().multiply(BigDecimal.valueOf(stocksOwnedAmount.get(i))));
-                //valueWhenBought represents all the prices when this specific stock got bought or sold in the past
-                //calculate development of stock during the time when hold by the user
-                currentPriceDevelopmentPercent.add(currentPriceTotalValue.get(i).divide(stockByUserList.get(i).getValueWhenBought(), 2, RoundingMode.HALF_UP).subtract(BigDecimal.valueOf(1)));
-                currentPriceDevelopmentTotal.add(currentPriceTotalValue.get(i).subtract(stockByUserList.get(i).getValueWhenBought()));
-            }
-
-            // create List with Arrays for stocksValues
+            // Collect all info of the stocks owned by the user in this league
             List<StockInDepot> stocksInDepot = new ArrayList<>();
-            for (int i = 0; i<stocksOwnedSymbol.size(); i++){
-                StockInDepot stockInDepot = new StockInDepot();
-                stockInDepot.setSymbol(stocksOwnedSymbol.get(i));
-                stockInDepot.setCurrentPriceSingleStock(currentPriceSingleStock.get(i));
-                stockInDepot.setCurrentPriceTotalValue(currentPriceTotalValue.get(i));
-                stockInDepot.setCurrentPriceDevelopmentPercent(currentPriceDevelopmentPercent.get(i));
-                stockInDepot.setCurrentPriceDevelopmentTotal(currentPriceDevelopmentTotal.get(i));
-                stocksInDepot.add(stockInDepot);
+            BigDecimal portfolioValue = BigDecimal.ZERO;
+            for (StockByUser stockByUser : stockByUsers) {
+                Optional<Stock> stockOptional = stockRepository.findStockBySymbol(stockByUser.getSymbol());
+
+                if (stockOptional.isEmpty()) {
+                    throw new CustomErrorException(
+                            HttpStatus.NO_CONTENT,
+                            "The stock with the symbol " + stockByUser.getSymbol() + " does not exist");
+                }
+
+                Stock stock = stockOptional.get();
+                BigDecimal totalStockValue = stock.getCurrentPrice().multiply(BigDecimal.valueOf(stockByUser.getAmount()));
+                stocksInDepot.add(new StockInDepot(
+                        stockByUser.getSymbol(),
+                        stockByUser.getStockName(),
+                        stock.getCurrentPrice(),
+                        totalStockValue,
+                        stock.getCurrentPrice().divide(stockByUser.getValueWhenBought(), 2, RoundingMode.HALF_UP).subtract(BigDecimal.ONE),
+                        stock.getCurrentPrice().subtract(stockByUser.getValueWhenBought())
+                        ));
+
+                portfolioValue = portfolioValue.add(totalStockValue);
             }
 
             LocalDate todayDate = LocalDate.now();
             LocalDateTime today = todayDate.atStartOfDay();
             LocalDateTime yesterday = today.minusDays(1);
-            Optional<DepotByUser> depotByUser = depotByUserRepository.findAllByLeagueIdEqualsAndUserIdEqualsAndDateEquals(leagueid, userid, yesterday);
-            BigDecimal porfolio_valueDevelopmentTotal = BigDecimal.valueOf(0.0);
-            BigDecimal porfolio_valueDevelopmentPercent = BigDecimal.valueOf(0.0);
-            BigDecimal portfolioValueToday = BigDecimal.valueOf(0);
-            for (int i = 0; i<currentPriceTotalValue.size(); i++){
-                portfolioValueToday = currentPriceTotalValue.get(i).add(portfolioValueToday);
-            }
+            Optional<DepotByUser> depotByUser = depotByUserRepository.findByLeagueIdAndUserIdAndDate(leagueId, userId, yesterday);
+
+            BigDecimal portfolioValueDevelopmentTotal = BigDecimal.ZERO;
+            BigDecimal portfolioValueDevelopmentPercent = BigDecimal.ZERO;
+
             if (depotByUser.isPresent()) {
-                // if there is a portfolio value for the user in the league from yesterday, we calculate the development. There is no such entity, if the user joined the league today
+                // If there is a portfolio value for the user in the league from yesterday the development is calculated.
+                // There is no such entity, if the user joined the league today
                 BigDecimal portfolioValueYesterday = depotByUser.get().getPortfolioValue();
-                porfolio_valueDevelopmentPercent = portfolioValueToday.divide(portfolioValueYesterday, 2, RoundingMode.HALF_UP).subtract(BigDecimal.valueOf(1));
-                porfolio_valueDevelopmentTotal = portfolioValueToday.subtract(portfolioValueYesterday);
+                portfolioValueDevelopmentPercent = portfolioValue.divide(portfolioValueYesterday, 2, RoundingMode.HALF_UP).subtract(BigDecimal.ONE);
+                portfolioValueDevelopmentTotal = portfolioValue.subtract(portfolioValueYesterday);
             }
 
 
-            // LinkedHashMap with historical Data about the portfolioValue in the past 30 days
+            // LinkedHashMap with historical Data about the portfolio_value in the past 30 days
             // TODO: fill with historical Data
             LocalDateTime thirtyDaysAgo = today.minusDays(30);
-            List<DepotByUser> past30DaysPortfolioValue = depotByUserRepository.findAllByLeagueIdEqualsAndUserIdEqualsAndDateAfter(leagueid, userid, thirtyDaysAgo);
+            List<DepotByUser> past30DaysPortfolioValue = depotByUserRepository.findAllByLeagueIdAndUserIdAndDate(leagueId, userId, thirtyDaysAgo);
             LinkedHashMap<LocalDateTime, BigDecimal> linkedHashMap = new LinkedHashMap<>();
             LocalDateTime dateIterator = thirtyDaysAgo;
             // for the amount of days, that do not have an entity in depotByUser yet (because back then the user was not in the league yet) we add a 0 to the HashMap
@@ -178,49 +166,34 @@ public class UserByLeagueService {
                 linkedHashMap.put(dateIterator, BigDecimal.valueOf(0.0));
                 dateIterator = dateIterator.plusDays(1);
             }
-            // add the date and portfoliovalue to the hashmap
-            for (int i = 0; i<past30DaysPortfolioValue.size(); i++){
-                linkedHashMap.put(past30DaysPortfolioValue.get(i).getDate(), past30DaysPortfolioValue.get(i).getPortfolioValue());
+            // Add the date and portfolio_value to the hashmap
+            for (DepotByUser byUser : past30DaysPortfolioValue) {
+                linkedHashMap.put(byUser.getDate(), byUser.getPortfolioValue());
             }
-            linkedHashMap.put(today, portfolioValueToday);
+            linkedHashMap.put(today, portfolioValue);
 
-            //get free Budget
-            UserByLeague userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueid, userid).get();
-            BigDecimal freeBudget = userByLeague.getFreeBudget();
+            // Get free Budget
+            Optional<UserByLeague> userByLeagueOptional = userByLeagueRepository.findByLeagueIdAndUserId(leagueId, userId);
+            if (userByLeagueOptional.isEmpty()) {
+                throw new CustomErrorException(HttpStatus.NO_CONTENT, "This user does not exist");
+            }
 
-            // get amount of usable jokers
-            Integer amountJokers = findNumberOfJokerAvailable(leagueid, userid).getBody();
+            BigDecimal freeBudget = userByLeagueOptional.get().getFreeBudget();
+            Integer amountJokers = findNumberOfJokerAvailable(leagueId, userId).getBody();
 
-            // add data to depotUser
-            depotUser.setPortfolio_value(portfolioValueToday);
-            depotUser.setPortfolio_valueDevelopmentTotal(porfolio_valueDevelopmentTotal);
-            depotUser.setPortfolio_valueDevelopmentPercent(porfolio_valueDevelopmentPercent);
-            depotUser.setStocksInDepot(stocksInDepot);
-            depotUser.setHistoryPortfolio_value(linkedHashMap);
-            depotUser.setAmountJoker(amountJokers);
-            depotUser.setFreeBudget(freeBudget);
+            // Add data to depotUser
+            DepotUser depotUser = new DepotUser(
+                portfolioValue,
+                portfolioValueDevelopmentTotal,
+                portfolioValueDevelopmentPercent,
+                freeBudget,
+                stocksInDepot,
+                linkedHashMap,
+                amountJokers
+            );
 
             return new ResponseEntity<>(depotUser, HttpStatus.OK);
         } catch (Exception e) {
-            // TODO: Implement logging of errors
-            throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
-        }
-    }
-
-    public ResponseEntity<PortfolioAndDepotValue> getCurrentPortfolioAndDepotValue(String leagueId, String userId) {
-        try {
-            Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueId, userId);
-            if (userByLeague.isEmpty()){
-                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User mit id " + userId + " ist nicht in der Liga mit id " + leagueId);
-            } else {
-                ValueDepotUpdate valueDepotUpdate = new ValueDepotUpdate(leagueId, userId);
-                BigDecimal freeBudget = userByLeague.get().getFreeBudget();
-                BigDecimal portfolioValue = updateValueDepot(valueDepotUpdate).getBody();
-                PortfolioAndDepotValue portfolioAndDepotValue = new PortfolioAndDepotValue(portfolioValue, portfolioValue.add(freeBudget));
-                return new ResponseEntity<>(portfolioAndDepotValue, HttpStatus.OK);
-            }
-        } catch (Exception e) {
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
     }
@@ -228,18 +201,42 @@ public class UserByLeagueService {
     public ResponseEntity<BigDecimal> getFreeBudget(ValueDepotUpdate valueDepotUpdate) {
         String leagueId = valueDepotUpdate.getLeagueid();
         String userId = valueDepotUpdate.getUserid();
+
         try {
             Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueId, userId);
             if (userByLeague.isEmpty()){
-                throw new CustomErrorException(HttpStatus.NO_CONTENT, "Der User mit id " + userId + " ist nicht in der Liga mit id " + leagueId);
+                throw new CustomErrorException(
+                        HttpStatus.NO_CONTENT,
+                        "User " + userId + " is not in this league with the id: " + leagueId);
             } else {
                 BigDecimal freeBudget = userByLeague.get().getFreeBudget();
                 return new ResponseEntity<>(freeBudget, HttpStatus.OK);
             }
         } catch (Exception e) {
-            // TODO: Implement logging of errors
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
         }
+    }
 
+    /*
+    Helper methods
+     */
+
+    public PortfolioAndDepotValue getCurrentPortfolioAndDepotValue(String leagueId, String userId) {
+        try {
+            Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueId, userId);
+            if (userByLeague.isEmpty()){
+                throw new CustomErrorException(
+                        HttpStatus.NO_CONTENT,
+                        "User with id: " + userId + " is not in this league: " + leagueId);
+            } else {
+                ValueDepotUpdate valueDepotUpdate = new ValueDepotUpdate(leagueId, userId);
+                BigDecimal freeBudget = userByLeague.get().getFreeBudget();
+                BigDecimal portfolioValue = updateValueDepot(valueDepotUpdate).getBody();
+                assert portfolioValue != null;
+                return new PortfolioAndDepotValue(portfolioValue, portfolioValue.add(freeBudget));
+            }
+        } catch (Exception e) {
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
     }
 }

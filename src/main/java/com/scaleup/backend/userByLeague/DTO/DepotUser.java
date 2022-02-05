@@ -25,4 +25,5 @@ public class DepotUser {
     private LinkedHashMap<LocalDateTime, BigDecimal> historyPortfolio_value;
     private Integer amountJoker;
 
+
 }
