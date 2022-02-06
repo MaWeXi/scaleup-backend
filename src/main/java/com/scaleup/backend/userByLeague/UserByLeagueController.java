@@ -1,6 +1,7 @@
 package com.scaleup.backend.userByLeague;
 
 import com.scaleup.backend.userByLeague.DTO.DepotUser;
+import com.scaleup.backend.userByLeague.DTO.FreeBudgetAndTransactionCost;
 import com.scaleup.backend.userByLeague.DTO.ValueDepotUpdate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class UserByLeagueController {
     }
 
     @GetMapping("/freeBudget")
-    public ResponseEntity<BigDecimal> getFreeBudget(@RequestBody ValueDepotUpdate valueDepotUpdate) {
+    public ResponseEntity<FreeBudgetAndTransactionCost> getFreeBudget(@RequestBody ValueDepotUpdate valueDepotUpdate) {
         return userByLeagueService.getFreeBudget(valueDepotUpdate);
     }
 }

@@ -1,6 +1,8 @@
 package com.scaleup.backend.stocksByUser;
 
 import com.scaleup.backend.exceptionHandling.CustomErrorException;
+import com.scaleup.backend.league.League;
+import com.scaleup.backend.league.LeagueRepository;
 import com.scaleup.backend.stock.Stock;
 import com.scaleup.backend.stock.StockRepository;
 import com.scaleup.backend.stocksByUser.DTO.StockAmountGetInformation;
@@ -26,17 +28,19 @@ public class StockByUserService {
     final StockRepository stockRepository;
     final UserByLeagueRepository userByLeagueRepository;
     final TransactionRepository transactionRepository;
+    final LeagueRepository leagueRepository;
 
     public StockByUserService(
             StockByUserRepository stockByUserRepository,
             StockRepository stockRepository,
             UserByLeagueRepository userByLeagueRepository,
-            TransactionRepository transactionRepository
-    ) {
+            TransactionRepository transactionRepository,
+            LeagueRepository leagueRepository) {
         this.stockByUserRepository = stockByUserRepository;
         this.stockRepository = stockRepository;
         this.userByLeagueRepository = userByLeagueRepository;
         this.transactionRepository = transactionRepository;
+        this.leagueRepository = leagueRepository;
     }
 
     public ResponseEntity<StockByUser> buyStock(StockBuy stockBuy) {
@@ -54,6 +58,7 @@ public class StockByUserService {
         );
         Optional<Stock> stockOptional = stockRepository.findStockBySymbol(symbol);
         Optional<UserByLeague> userOptional = userByLeagueRepository.findByLeagueIdAndUserId(leagueId, userId);
+        Optional<League> league = leagueRepository.findLeagueByLeagueId(leagueId);
 
         try {
 
@@ -62,6 +67,7 @@ public class StockByUserService {
 
                 Stock stock = stockOptional.get();
                 UserByLeague user = userOptional.get();
+                BigDecimal transactionCost = league.get().getTransactionCost();
                 BigDecimal buyCost = stock.getAskPrice().multiply(BigDecimal.valueOf(amount));
                 BigDecimal freeBudget = user.getFreeBudget();
 
@@ -105,7 +111,7 @@ public class StockByUserService {
                     ));
 
                     // Update the portfolio_value and the freeBudget of the user in UserByLeague
-                    user.setFreeBudget(freeBudget.subtract(buyCost));
+                    user.setFreeBudget(freeBudget.subtract(buyCost).subtract(transactionCost));
                     user.setPortfolioValue(user.getPortfolioValue().add(buyCost));
                     userByLeagueRepository.save(user);
 

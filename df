@@ -1,0 +1,309 @@
+[33mcommit e43b63e5344de02dd7222b410e7b07223569d092[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Sat Feb 5 18:11:39 2022 +0100
+
+    Add stockName globally (#11)
+    
+    * Various changes
+
+[33mcommit 4841a60d04606f58162ef5259d5bfbf44731de30[m
+Author: Wetzel, Maximilian <maximilian.wetzel@studium.uni-hamburg.de>
+Date:   Thu Feb 3 21:23:01 2022 +0100
+
+    - Add interval year of stock history to Stock.java response
+
+[33mcommit 9a45f521ba1847c545f535e453495c938bd46083[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Thu Feb 3 12:12:01 2022 +0100
+
+    Add stock history (#10)
+    
+    * Heroku fix
+    * Add stock history to Stock.java response
+
+[33mcommit 0f7c71ff2428a601cd26e1b3de254844575190d6[m
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Mon Jan 31 20:13:05 2022 +0100
+
+    add get request: get freeBudget of user
+
+[33mcommit ec6c81fdc619e2f924f1cc38d8d28870503a4d29[m
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Mon Jan 31 18:33:07 2022 +0100
+
+    getDepot request returns now doubles instead of integers
+
+[33mcommit 9181f9d135d3e92a399d1fa4104c5e8d0afac0df[m
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Mon Jan 31 11:16:07 2022 +0100
+
+    update readme
+
+[33mcommit 5d77e47d61fbea47351ee1dffda61c0bc8ff5a17[m
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Mon Jan 31 11:00:37 2022 +0100
+
+    new get request: getStockAmountOwned and getTransactions
+
+[33mcommit a90845f60c9b5861ee03ed04e901391d494e9fee[m
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Sun Jan 30 00:04:58 2022 +0100
+
+    Add DepotByUser
+
+[33mcommit f209b5f54a38be006bb30e94ba07d6c9e60d7856[m
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Wed Jan 12 09:57:13 2022 +0100
+
+    new leagueId creation
+
+[33mcommit 2a8ea3800f6b7f27b998d54ef7ba70e54b4296e0[m[33m ([m[1;32mleon[m[33m)[m
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Sun Jan 9 14:49:15 2022 +0100
+
+    FIRST VERSION of http-rest calls
+
+[33mcommit 5943263140101499c5911ef90e05e57e6470ea70[m
+Merge: 80a9a50 fb63807
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Sun Jan 9 10:33:09 2022 +0100
+
+    Merge remote-tracking branch 'origin/main' into leon
+
+[33mcommit fb63807c1cc16fae723f71c2d14d7e5372a5f682[m
+Author: Wetzel, Maximilian <maximilian.wetzel@studium.uni-hamburg.de>
+Date:   Sat Jan 8 18:29:35 2022 +0100
+
+    Small fix
+
+[33mcommit ee0f352f9da348b245bf463525e8a5f345883f8b[m
+Author: Wetzel, Maximilian <maximilian.wetzel@studium.uni-hamburg.de>
+Date:   Sat Jan 8 18:17:42 2022 +0100
+
+    Update README.md
+
+[33mcommit cfbb9f66c5cb63583cd4c32e5d34a5c4745d404f[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Sat Jan 8 18:12:25 2022 +0100
+
+    Add leaderboard request for leagues (#9)
+
+[33mcommit d015780fb951b23963633c74bcd26a1255dc4b85[m
+Author: Wetzel, Maximilian <maximilian.wetzel@studium.uni-hamburg.de>
+Date:   Sat Jan 8 15:04:46 2022 +0100
+
+    _ Fix various things
+
+[33mcommit 80a9a506598c036e3b694b3bb6d4312cec2f2689[m
+Merge: 08f4d3a f0a1179
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Sat Jan 8 09:07:52 2022 +0100
+
+    Merge remote-tracking branch 'origin/main' into leon
+    
+    # Conflicts:
+    #       src/main/java/com/scaleup/backend/user/UserService.java
+
+[33mcommit 08f4d3ade4d7c2af25c4625fa29eff7c657d3e12[m
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Sat Jan 8 08:50:46 2022 +0100
+
+    first commitPl
+    Pease enter the commit message for your changes. Lines starting
+
+[33mcommit f0a1179574bea4daac14ebdd67163619a20d9265[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Sat Jan 8 00:33:20 2022 +0100
+
+    Fix UserByLeague POJO and Table (#8)
+    
+    - Remove UserByLeague primary key POJO
+    - Remove portfolio_value as PrimaryKeyColumn
+    - Change price to currentPrice
+
+[33mcommit e819ed6179e5ae013cb3c11f7c8fc469f69642f5[m
+Author: Wetzel, Maximilian <maximilian.wetzel@studium.uni-hamburg.de>
+Date:   Thu Jan 6 14:04:26 2022 +0100
+
+    Update README.md
+
+[33mcommit 9324dc525b3b9bc613b3705d5659109e8a74f891[m
+Author: Wetzel, Maximilian <maximilian.wetzel@studium.uni-hamburg.de>
+Date:   Thu Jan 6 13:41:12 2022 +0100
+
+    Add separate update method for user
+
+[33mcommit 21310fc136acbac95f1334b55c000cb27eb69c2d[m
+Author: Wetzel, Maximilian <maximilian.wetzel@studium.uni-hamburg.de>
+Date:   Thu Jan 6 00:17:52 2022 +0100
+
+    Fix typo
+
+[33mcommit 59818ac13adc5e56d48d929a3d93204fe99c8458[m
+Author: Wetzel, Maximilian <maximilian.wetzel@studium.uni-hamburg.de>
+Date:   Thu Jan 6 00:15:03 2022 +0100
+
+    Shorten method name
+
+[33mcommit 70b865f7711467412a2eab5f4fd29182f63ad8b0[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Thu Jan 6 00:10:33 2022 +0100
+
+    Add stock changes (#7)
+    
+    - Update Double to BigDecimal
+    - Add ask- and bid-price
+    - Remove unnecessary print statement
+    -Remove old methods that are no longer used
+    - Small changes
+
+[33mcommit 41449827a7d9b818a3a68cd6d7ada2c4085b3c61[m
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Fri Dec 31 12:14:48 2021 +0100
+
+    Update README.md
+
+[33mcommit 599b0eda4ebf6918e2be1381c6a3fb47a67549c2[m
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Fri Dec 31 11:52:00 2021 +0100
+
+    added market and userByLeague
+
+[33mcommit 09482f1ccd23275a5ba091a24b42fabb0e1be95e[m
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Thu Dec 30 16:13:23 2021 +0100
+
+    small changes
+
+[33mcommit b0019a346fe77202dba8218988ad428b7bbe7d7e[m
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Wed Dec 29 22:35:53 2021 +0100
+
+    added: set joker for stock in market and when liga gets created a us
+
+[33mcommit 931063203c2c650855244178c623b9747a1e15f6[m
+Author: Haget343 <83006784+Haget343@users.noreply.github.com>
+Date:   Mon Dec 27 17:59:40 2021 +0100
+
+    add markets
+
+[33mcommit 02d54f5e6910597d155ebcae6245ea0791ec9dd5[m[33m ([m[1;32mmarket[m[33m)[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Tue Dec 21 14:20:48 2021 +0100
+
+    mw-add-leagues (#6)
+    
+    - Remove UUID components
+    - Change Cassandra annotation
+    - League functionality
+    - Join leagues functionality
+    - Change to testing DB
+    - Update README.md
+
+[33mcommit a218d874e0dd7e967b80ddcd4ccb7b1b4885aa3a[m
+Author: Wetzel, Maximilian <maximilian.wetzel@studium.uni-hamburg.de>
+Date:   Tue Dec 7 10:19:10 2021 +0100
+
+    - Update README.md stock section
+
+[33mcommit f92db024a14355db3387f579140cda6d3e066bda[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Mon Dec 6 19:19:42 2021 +0100
+
+    Add league functionality (#4)
+    
+    - Query stocks by value
+    - Update stock values
+
+[33mcommit b46e71d7acb8bad9c7bc671831c58da79c38a08d[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Thu Nov 25 17:43:05 2021 +0100
+
+    Add error handling (#2)
+    
+    * Add custom error handling
+    
+    * Add @DeleteMapping for users
+    
+    * Change Users column type from UUID to TEXT
+    
+    * Change Users column type from UUID to TEXT
+
+[33mcommit cbdb83580eea62bef0fba2e384fb66ff349e5de8[m
+Author: Wetzel, Maximilian <maximilian.wetzel@studium.uni-hamburg.de>
+Date:   Wed Nov 24 17:21:15 2021 +0100
+
+    Heroku Java JDK 11 fix
+
+[33mcommit 046245d73c11716d5ef8bfe3931a9ab0e58ecc5d[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Wed Nov 24 16:41:06 2021 +0100
+
+    Astra support (#1)
+    
+    * Add Astra support
+    * Fix NonNull warning in User Repository
+    * Update README.md
+    * Change AstraDB Configuration data
+    * Comment out support for local Cassandra DB
+
+[33mcommit 169d1a8d1077425e6c8654b449f2e60eb88c9c32[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Tue Nov 16 11:34:04 2021 +0100
+
+    Update README.md
+
+[33mcommit 65349dc0cd13bb52adda47a360d7e6ea67fd8eac[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Tue Nov 16 11:33:01 2021 +0100
+
+    Update README.md
+
+[33mcommit fb93c03a9bda809c63e8db654293e3ac4eb27cbe[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Tue Nov 16 11:29:57 2021 +0100
+
+    Update README.md
+
+[33mcommit bbd7c8799f16477636fd19524e9e90699f6ded7a[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Tue Nov 16 11:29:35 2021 +0100
+
+    Update README.md
+
+[33mcommit e0c109a8897866f5d4c551c356e1d735490c10df[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Tue Nov 16 11:26:25 2021 +0100
+
+    Update README.md
+
+[33mcommit b4acf104d09b219869d9e1c51ce54072c88081ba[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Tue Nov 16 11:24:46 2021 +0100
+
+    Update README.md
+
+[33mcommit cfdd46e2102d3729f9d6152117a0df6567beb58d[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Tue Nov 16 10:58:10 2021 +0100
+
+    Update README.md
+
+[33mcommit dde88ecb2c93dac398b24485ec817fcd75e035e4[m
+Author: Wetzel, Maximilian <maximilian.wetzel@studium.uni-hamburg.de>
+Date:   Tue Nov 16 01:29:17 2021 +0100
+
+    - Test
+
+[33mcommit 3f1f0b67deed3b2f9ddf03639cb1e215bbf6963c[m
+Author: Wetzel, Maximilian <maximilian.wetzel@studium.uni-hamburg.de>
+Date:   Tue Nov 16 01:20:13 2021 +0100
+
+    - Initial commit
+    - Implement user functionality
+
+[33mcommit 9f2532464900facf01513af7611aff6a3badd2bc[m
+Author: Maximilian Wetzel <32041611+MaWeXi@users.noreply.github.com>
+Date:   Tue Nov 16 01:13:21 2021 +0100
+
+    Initial commit

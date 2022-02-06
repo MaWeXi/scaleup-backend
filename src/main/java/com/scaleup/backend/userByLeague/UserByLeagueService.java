@@ -3,15 +3,14 @@ package com.scaleup.backend.userByLeague;
 import com.scaleup.backend.depotByUser.DepotByUser;
 import com.scaleup.backend.depotByUser.DepotByUserRepository;
 import com.scaleup.backend.exceptionHandling.CustomErrorException;
+import com.scaleup.backend.league.League;
+import com.scaleup.backend.league.LeagueRepository;
 import com.scaleup.backend.stock.Stock;
 import com.scaleup.backend.stock.StockRepository;
 import com.scaleup.backend.stock.StockService;
 import com.scaleup.backend.stocksByUser.StockByUser;
 import com.scaleup.backend.stocksByUser.StockByUserRepository;
-import com.scaleup.backend.userByLeague.DTO.DepotUser;
-import com.scaleup.backend.userByLeague.DTO.PortfolioAndDepotValue;
-import com.scaleup.backend.userByLeague.DTO.StockInDepot;
-import com.scaleup.backend.userByLeague.DTO.ValueDepotUpdate;
+import com.scaleup.backend.userByLeague.DTO.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,19 +33,21 @@ public class UserByLeagueService {
     final StockRepository stockRepository;
     final StockService stockService;
     final DepotByUserRepository depotByUserRepository;
+    final LeagueRepository leagueRepository;
 
     public UserByLeagueService(
             UserByLeagueRepository userByLeagueRepository,
             StockByUserRepository stockByUserRepository,
             StockRepository stockRepository,
             StockService stockService,
-            DepotByUserRepository depotByUserRepository
-    ) {
+            DepotByUserRepository depotByUserRepository,
+            LeagueRepository leagueRepository) {
         this.userByLeagueRepository = userByLeagueRepository;
         this.stockByUserRepository = stockByUserRepository;
         this.stockRepository = stockRepository;
         this.stockService = stockService;
         this.depotByUserRepository = depotByUserRepository;
+        this.leagueRepository = leagueRepository;
     }
 
     public ResponseEntity<Integer> findNumberOfJokerAvailable(String league_id, String user_id) {
@@ -198,19 +199,23 @@ public class UserByLeagueService {
         }
     }
 
-    public ResponseEntity<BigDecimal> getFreeBudget(ValueDepotUpdate valueDepotUpdate) {
+    public ResponseEntity<FreeBudgetAndTransactionCost> getFreeBudget(ValueDepotUpdate valueDepotUpdate) {
         String leagueId = valueDepotUpdate.getLeagueid();
         String userId = valueDepotUpdate.getUserid();
 
         try {
             Optional<UserByLeague> userByLeague = userByLeagueRepository.findByLeagueIdAndUserId(leagueId, userId);
+            Optional<League> league = leagueRepository.findLeagueByLeagueId(leagueId);
             if (userByLeague.isEmpty()){
                 throw new CustomErrorException(
                         HttpStatus.NO_CONTENT,
                         "User " + userId + " is not in this league with the id: " + leagueId);
             } else {
                 BigDecimal freeBudget = userByLeague.get().getFreeBudget();
-                return new ResponseEntity<>(freeBudget, HttpStatus.OK);
+                BigDecimal transactionCost = league.get().getTransactionCost();
+                FreeBudgetAndTransactionCost freeBudgetAndTransactionCost = new FreeBudgetAndTransactionCost(freeBudget, transactionCost);
+
+                return new ResponseEntity<>(freeBudgetAndTransactionCost, HttpStatus.OK);
             }
         } catch (Exception e) {
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
