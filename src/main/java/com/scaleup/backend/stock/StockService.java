@@ -2,10 +2,8 @@ package com.scaleup.backend.stock;
 
 import com.scaleup.backend.exceptionHandling.CustomErrorException;
 import com.scaleup.backend.stock.DTO.*;
+import com.scaleup.backend.stockHistory.*;
 import com.scaleup.backend.stockHistory.DTO.StockHistoryDTO;
-import com.scaleup.backend.stockHistory.StockHistoryMax;
-import com.scaleup.backend.stockHistory.StockHistoryMaxRepository;
-import com.scaleup.backend.stockHistory.StockHistoryQuarterRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +13,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,16 +23,18 @@ import java.util.Optional;
 public class StockService {
 
     final StockRepository stockRepository;
+    final StockHistoryQuarterWriteRepository stockHistoryQuarterRepositoryWrite;
     final StockHistoryQuarterRepository stockHistoryQuarterRepository;
     final StockHistoryMaxRepository stockHistoryMaxRepository;
     final ModelMapper modelMapper = new ModelMapper();
 
     public StockService(
             StockRepository stockRepository,
-            StockHistoryQuarterRepository stockHistoryQuarterRepository,
+            StockHistoryQuarterWriteRepository stockHistoryQuarterRepositoryWrite, StockHistoryQuarterRepository stockHistoryQuarterRepository,
             StockHistoryMaxRepository stockHistoryMaxRepository
     ) {
         this.stockRepository = stockRepository;
+        this.stockHistoryQuarterRepositoryWrite = stockHistoryQuarterRepositoryWrite;
         this.stockHistoryQuarterRepository = stockHistoryQuarterRepository;
         this.stockHistoryMaxRepository = stockHistoryMaxRepository;
     }
@@ -40,9 +42,49 @@ public class StockService {
     public ResponseEntity<?> updateAllStocks(List<Stock> stocks) {
         try {
             stockRepository.saveAll(stocks);
+
+            Timestamp timestamp = stocks.get(0).getLastUpdated();
+            LocalDateTime date = timestamp.toLocalDateTime();
+            final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-Q");
+            String dateString = dtf.format(date);
+
+            if (date.getMinute() % 15 == 0) {
+                List<StockHistoryQuarter> stockHistoryList = new ArrayList<>();
+                for (Stock stock : stocks) {
+                    stockHistoryList.add(new StockHistoryQuarter(
+                            stock.getSymbol(),
+                            dateString,
+                            timestamp,
+                            stock.getCurrentPrice(),
+                            stock.getDayHigh(),
+                            stock.getDayLow(),
+                            stock.getDayOpen(),
+                            BigDecimal.valueOf(stock.getVolume())
+                    ));
+                }
+                update15mStockValue(stockHistoryList);
+            }
+
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e) {
             throw new CustomErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
+    }
+
+    public void update15mStockValue(List<StockHistoryQuarter> stocks) {
+        try {
+            stockHistoryQuarterRepositoryWrite.saveAll(stocks);
+        } catch (Exception e) {
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST,  e.getMessage());
+        }
+    }
+
+    public ResponseEntity<?> updateDailyStockValue(List<StockHistoryMax> stocks) {
+        try {
+            stockHistoryMaxRepository.saveAll(stocks);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            throw new CustomErrorException(HttpStatus.BAD_REQUEST,  e.getMessage());
         }
     }
 

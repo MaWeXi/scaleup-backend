@@ -4,6 +4,7 @@ import com.scaleup.backend.exceptionHandling.CustomErrorException;
 import com.scaleup.backend.stock.DTO.AskUpdate;
 import com.scaleup.backend.stock.DTO.BidUpdate;
 import com.scaleup.backend.stock.DTO.StockDTO;
+import com.scaleup.backend.stockHistory.StockHistoryMax;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,7 @@ public class StockController {
         this.stockService = stockService;
     }
 
-    @PostMapping("/stock")
+    @PostMapping("stock")
     public ResponseEntity<?> postStockValues(@RequestBody List<Stock> stocks) {
         if (stocks.isEmpty()) {
             throw new CustomErrorException(HttpStatus.CONFLICT, "List of stocks is empty");
@@ -29,7 +30,15 @@ public class StockController {
         return stockService.updateAllStocks(stocks);
     }
 
-    @GetMapping("/stock/{symbol}")
+    @PostMapping("stock/daily")
+    public ResponseEntity<?> postDailyStockValue(@RequestBody List<StockHistoryMax> stocks) {
+        if (stocks.isEmpty()) {
+            throw new CustomErrorException(HttpStatus.CONFLICT, "List of stocks is empty");
+        }
+        return stockService.updateDailyStockValue(stocks);
+    }
+
+    @GetMapping("stock/{symbol}")
     public ResponseEntity<StockDTO> getStockBySymbol(@PathVariable("symbol") String symbol, @RequestParam Optional<String> interval) {
         if (interval.isEmpty()) {
             return stockService.getStockBySymbol(symbol);
